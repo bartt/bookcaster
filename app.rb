@@ -8,7 +8,14 @@ class BookCaster < Sinatra::Base
     super
   end
 
+  get '/' do 
+    halt 404, "Sorry, the root directory doesn't exist" unless File.directory?(@audio_books_root)
+    halt 404, "Sorry, the root directory contains more then just books, which is not allowed" if Dir.glob(File.join(@audio_books_root, '*')).any? { |entry| File.file?(entry) }
+    "/ is a directory"
+  end
+
   get '/*/:book.:ext?' do |path, book, ext| 
+    halt 404, "Sorry, the root directory doesn't exist" unless File.directory?(@audio_books_root)
     book_path = File.join(@audio_books_root, path, book)
     if File.directory?(book_path)
       case ext
@@ -27,6 +34,7 @@ class BookCaster < Sinatra::Base
   end
 
   get '/*/?:dir' do |path, dir|
+    halt 404, "Sorry, the root directory doesn't exist" unless File.directory?(@audio_books_root)
     dir_path = File.join(@audio_books_root, path, dir)
     if File.directory?(dir_path)
       pass if Dir.glob(File.join(dir_path, '*')).any? { |entry| File.file?(entry) }
@@ -37,6 +45,7 @@ class BookCaster < Sinatra::Base
   end
 
   get '/*/?:book' do |path, book|
+    halt 404, "Sorry, the root directory doesn't exist" unless File.directory?(@audio_books_root)
     book_path = File.join(@audio_books_root, path, book)
     if File.directory?(book_path)
       entries = Dir.glob(File.join(book_path, '*'))
