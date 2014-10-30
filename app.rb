@@ -2,9 +2,9 @@ require 'sinatra/base'
 
 class BookCaster < Sinatra::Base
   def initialize
-    @audio_books_root = ENV['AUDIO_BOOKS_ROOT'].dup || '/audiobooks'
+    @audio_books_root = ENV['AUDIO_BOOKS_ROOT'] && ENV['AUDIO_BOOKS_ROOT'].dup || '/audiobooks'
     # Remove trailing slashes
-    File.absolute_path(@audio_books_root.gsub!(/\/+$/, ''))
+    @audio_books_root = File.absolute_path(@audio_books_root.gsub(/\/+$/, ''))
     super
   end
 
