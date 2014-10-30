@@ -5,7 +5,7 @@ RUN cd / && \
     git clone https://github.com/bartt/bookcaster.git && \
     cd /bookcaster && bundle
 
-VOLUME /bookcaster
+VOLUME ["/bookcaster", "/audiobooks"]
 WORKDIR /bookcaster
 
 EXPOSE 9292
