@@ -1,6 +1,7 @@
 require 'sinatra/base'
 
 class BookCaster < Sinatra::Base
+
   def initialize
     @audio_books_root = ENV['AUDIO_BOOKS_ROOT'] && ENV['AUDIO_BOOKS_ROOT'].dup || '/audiobooks'
     # Remove trailing slashes
@@ -8,16 +9,18 @@ class BookCaster < Sinatra::Base
     super
   end
 
-  get '/' do 
-    halt 404, "Sorry, the root directory doesn't exist" unless File.directory?(@audio_books_root)
-    halt 404, "Sorry, the root directory contains more then just books, which is not allowed" if Dir.glob(File.join(@audio_books_root, '*')).any? { |entry| File.file?(entry) }
-    "/ is a directory"
+  get '/' do
+    validate_books_root
+    entries = dir_entries(@audio_books_root)
+    halt 404, '<h1>Sorry, the root directory contains more then just books, which is not allowed</h1>' unless valid_dir?(entries)
+    '/ is a directory'
   end
 
-  get '/*/:book.:ext?' do |path, book, ext| 
-    halt 404, "Sorry, the root directory doesn't exist" unless File.directory?(@audio_books_root)
+  get '/*/?:book.:ext?' do |path, book, ext|
+    validate_books_root
     book_path = File.join(@audio_books_root, path, book)
     if File.directory?(book_path)
+      entries = dir_entries(book_path)
       case ext
       when 'cue'
         "#{book_path}.#{ext} returns a CUE file"
@@ -26,34 +29,69 @@ class BookCaster < Sinatra::Base
       when 'rss'
         "#{book_path}.#{ext} returns a RSS feed"
       when 'jpg'
-        "#{book_path}.#{ext} returns an image"
-      else 
-        halt 404, "Sorry, I don't know of #{File.join(path, book)}.#{ext}"
+        image_path = entries.find do |entry|
+          entry =~ /#{book}\.#{ext}$/ && File.file?(entry) && File.readable?(entry)
+        end
+        send_file(image_path) if image_path
+        halt 404
+      else
+        halt 404
       end
     end
   end
 
   get '/*/?:dir' do |path, dir|
-    halt 404, "Sorry, the root directory doesn't exist" unless File.directory?(@audio_books_root)
+    validate_books_root
     dir_path = File.join(@audio_books_root, path, dir)
     if File.directory?(dir_path)
-      pass if Dir.glob(File.join(dir_path, '*')).any? { |entry| File.file?(entry) }
+      entries = dir_entries(dir_path)
+      pass unless valid_dir?(entries)
       "#{File.join(path, dir)} is a directory"
     else
-      halt 404, "Sorry, I don't know of #{File.join(path, dir)}"
+      halt 404
     end
   end
 
   get '/*/?:book' do |path, book|
-    halt 404, "Sorry, the root directory doesn't exist" unless File.directory?(@audio_books_root)
+    validate_books_root
     book_path = File.join(@audio_books_root, path, book)
     if File.directory?(book_path)
-      entries = Dir.glob(File.join(book_path, '*'))
-      halt 404, "Sorry, the book #{File.join(path, book)} contains other books, which is not allowed" if entries.any? { |entry| File.directory?(entry) }
+      entries = dir_entries(book_path)
+      halt 404, "<h1>Sorry, the book #{File.join(path, book)} contains other books, which is not allowed</h1>" unless valid_book?(entries)
       entries.each do | file |
         puts file
       end
       "#{book_path} is a book"
     end
+  end
+
+  helpers do
+    def validate_books_root
+      halt 404, "<h1>Sorry, the root directory doesn't exist</h1>" unless File.directory?(@audio_books_root)
+    end
+
+    def dir_entries(dir_path)
+      Dir.glob(File.join(dir_path, '*'))
+    end
+
+    def valid_dir?(entries)
+      entries.all? { |entry| File.directory?(entry) }
+    end
+
+    def invalid_dir?(entries)
+      !valid_dir?(entries)
+    end
+
+    def valid_book?(entries)
+      entries.all? { |entry| File.file?(entry) }
+    end
+
+    def invalid_book?(entries)
+      !valid_book?(entries)
+    end
+  end
+
+  not_found do
+    "<h1>Sorry, I don't know of #{request.path_info}</h1>"
   end
 end
