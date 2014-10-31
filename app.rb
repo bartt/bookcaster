@@ -1,4 +1,8 @@
 require 'sinatra/base'
+require 'taglib'
+
+HOUR = 60 * 60
+MIN = 60
 
 class BookCaster < Sinatra::Base
 
@@ -16,7 +20,7 @@ class BookCaster < Sinatra::Base
     '/ is a directory'
     @books = select_books(@entries)
     @dirs = select_dirs(@entries)
-    erb :directory
+    erb :directory, :layout => :page
   end
 
   get '/*/?:book.:ext?' do |path, book, ext|
@@ -61,10 +65,8 @@ class BookCaster < Sinatra::Base
     if File.directory?(book_path)
       @entries = dir_entries(book_path)
       halt 404, "<h1>Sorry, the book #{request.path_info} contains other books, which is not allowed</h1>" unless valid_book?(@entries)
-      @entries.each do | file |
-        puts file
-      end
-      "#{book_path} is a book"
+      @duration = book_duration(@entries)
+      "#{book_path} is a #{duration_in_hours_and_minutes(@duration)} long book"
     end
   end
 
@@ -74,11 +76,26 @@ class BookCaster < Sinatra::Base
     end
 
     def dir_entries(dir_path)
-      Dir.glob(File.join(dir_path, '*'))
+      attr_map = {}
+      Dir.glob(File.join(dir_path, '*')).each do |entry|
+        attr_map[entry] = File.file?(entry) && File.readable?(entry) && TagLib::FileRef.open(entry) do |audio_file|
+          unless audio_file.null?
+            attrs = {}
+            %w(title album artist comment genre track year).each do |attr|
+              attrs[attr] = audio_file.tag.send(attr.to_sym)
+            end
+            %w(bitrate channels length sample_rate).each do |attr|
+              attrs[attr] = audio_file.audio_properties.send(attr.to_sym)
+            end
+            attrs
+          end
+        end
+      end
+      attr_map
     end
 
     def valid_dir?(entries)
-      entries.all? { |entry| File.directory?(entry) }
+      entries.keys.all? { |entry| File.directory?(entry) }
     end
 
     def invalid_dir?(entries)
@@ -86,7 +103,7 @@ class BookCaster < Sinatra::Base
     end
 
     def valid_book?(entries)
-      !entries.empty? && entries.all? { |entry| File.file?(entry) }
+      !entries.empty? && entries.keys.all? { |entry| File.file?(entry) }
     end
 
     def invalid_book?(entries)
@@ -94,15 +111,15 @@ class BookCaster < Sinatra::Base
     end
 
     def select_books(entries)
-      entries.select { |candidate| valid_book?(dir_entries(candidate)) }
+      entries.keys.select { |candidate| valid_book?(dir_entries(candidate)) }
     end
 
     def select_dirs(entries)
-      entries.select { |candidate| valid_dir?(dir_entries(candidate)) }
+      entries.keys.select { |candidate| valid_dir?(dir_entries(candidate)) }
     end
 
     def book_image(entries)
-      entries.find do |entry|
+      entries.keys.find do |entry|
         has_image_ext(entry) && File.file?(entry) && File.readable?(entry)
       end
     end
@@ -116,12 +133,19 @@ class BookCaster < Sinatra::Base
     end
 
     def to_url(path)
-      url = path.sub(@audio_books_root, '')
-      url = "#{File.dirname(url)}#{image_ext}" if has_image_ext(path)
+      url = path.nil? ? '' : path.sub(@audio_books_root, '')
+      url = "#{File.dirname(url)}#{image_ext}" if has_image_ext(url)
       url
     end
-  end
 
+    def book_duration(entries)
+      entries.values.compact.inject(0) { |sum, attributes| sum += attributes['length'] }
+    end
+
+    def duration_in_hours_and_minutes(duration)
+      '%d:%02d' % [duration / HOUR, (duration % HOUR) / MIN]
+    end
+  end
 
   not_found do
     "<h1>Sorry, I don't know of #{request.path_info}</h1>"

@@ -5,6 +5,6 @@
   <% for book in @books %>
     <% url = to_url(book) %>
     <% img_url = to_url(book_image(dir_entries(book))) %>
-    <li><a href="<%= url %>"><img src="<%= img_url %>"/></a></li>
+    <li><a href="<%= url %>"><img src="<%= img_url %>"/> <%= duration_in_hours_and_minutes(book_duration(dir_entries(book))) %></a></li>
   <% end %>
 </ul>
