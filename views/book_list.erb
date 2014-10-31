@@ -1,0 +1,10 @@
+<% unless @books.empty? %>
+  <h2>Books</h2>
+<% end %>
+<ul>
+  <% for book in @books %>
+    <% url = to_url(book) %>
+    <% img_url = to_url(book_image(dir_entries(book))) %>
+    <li><a href="<%= url %>"><img src="<%= img_url %>"/></a></li>
+  <% end %>
+</ul>

@@ -1,0 +1,9 @@
+<% unless @dirs.empty? %>
+  <h2>Directories</h2>
+<% end %>
+<ul>
+  <% for dir in @dirs %>
+    <% url = to_url(dir) %>
+    <li><a href="<%= url %>"><%= url %></a></li>
+  <% end %>
+</ul>
