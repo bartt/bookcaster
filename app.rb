@@ -134,8 +134,8 @@ class BookCaster < Sinatra::Base
     end
 
     def book_title(entries)
-      title_index = entries.keys.find{ |entry| entries[entry]['album'] && entries[entry]['album'] > '' }
-      author_index = entries.keys.find{ |entry| entries[entry]['artist'] && entries[entry]['artist'] > '' }
+      title_index = entries.keys.find{ |entry| entries[entry] && entries[entry]['album'] && entries[entry]['album'] > '' }
+      author_index = entries.keys.find{ |entry| entries[entry] && entries[entry]['artist'] && entries[entry]['artist'] > '' }
       title = "#{entries[title_index]['album']}"
       title += " by #{entries[author_index]['artist']}" if author_index
       title
