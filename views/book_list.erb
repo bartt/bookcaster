@@ -1,10 +1,24 @@
 <% unless @books.empty? %>
   <h2>Books</h2>
 <% end %>
-<ul>
+<ul class="catalog">
   <% for book in @books %>
     <% url = to_url(book) %>
     <% img_url = to_url(book_image(dir_entries(book))) %>
-    <li><a href="<%= url %>"><img src="<%= img_url %>"/> <%= duration_in_hours_and_minutes(book_duration(dir_entries(book))) %></a></li>
+    <li class="book">
+        <img src="<%= img_url %>"/>
+        <a class="feed" href="<%= "#{url}.rss" %>" title="Listen to '' in a podcatcher">
+          <span class="fa-stack fa-lg">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-rss fa-inverse fa-stack-1x"></i>
+          </span>
+        </a>
+        <a class="play" href="<%= "#{url}.m3u" %>" title="Listen to '' online">
+          <i class="fa fa-play-circle fa-2x"></i>
+        </a>
+        <div class="duration">
+          <%= duration_in_hours_and_minutes(book_duration(dir_entries(book))) %>
+        </div>
+    </li>
   <% end %>
 </ul>

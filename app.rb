@@ -29,8 +29,6 @@ class BookCaster < Sinatra::Base
     if File.directory?(book_path)
       @entries = dir_entries(book_path)
       case ext
-      when 'cue'
-        "#{book_path}.#{ext} returns a CUE file"
       when 'm3u'
         "#{book_path}.#{ext} returns a M3U file"
       when 'rss'
