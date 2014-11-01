@@ -1,12 +1,17 @@
+<!doctype html>
 <html>
   <head>
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
       .catalog {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
         align-items: flex-end;
+        padding: 0;
       }
       .book {
         list-style: none;
@@ -50,11 +55,11 @@
       .book:focus .duration {
         color: rgb(255, 255, 255);
       }
-      .book + .book {
-        margin-left: 20px;
+      .book {
+        margin: 10px;
       }
       img {
-        max-width: 200px;
+        width: 200px;
       }
     </style>
   </head>
