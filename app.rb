@@ -11,6 +11,12 @@ class BookCaster < Sinatra::Base
     # Remove trailing slashes
     @audio_books_root = File.absolute_path(@audio_books_root.gsub(/\/+$/, ''))
     super
+    # Serve audio book static files
+    Sinatra::Base.set :public_folder, @audio_books_root
+  end
+
+  configure do
+    mime_type :m3u, 'audio/x-mpegurl'
   end
 
   get '/' do
@@ -30,7 +36,7 @@ class BookCaster < Sinatra::Base
       @entries = dir_entries(book_path)
       case ext
       when 'm3u'
-        "#{book_path}.#{ext} returns a M3U file"
+        erb :m3u, :content_type => :m3u
       when 'rss'
         "#{book_path}.#{ext} returns a RSS feed"
       when 'jpg'
@@ -135,6 +141,15 @@ class BookCaster < Sinatra::Base
       title
     end
 
+    def book_m3u(entries)
+      audio_files = entries.keys.select do |entry|
+        entries[entry]
+      end
+      audio_files.collect do |file|
+        to_url(file)
+      end.join("\n")
+    end
+
     def image_ext
       '.jpg'
     end
@@ -143,10 +158,18 @@ class BookCaster < Sinatra::Base
       File.extname(entry).downcase == image_ext
     end
 
+    def has_audio_ext(entry)
+      %w(mp3 mp4).include?(File.extname(entry).downcase)
+    end
+
+    def to_path(file)
+      path = file.nil? ? '' : file.sub(@audio_books_root, '')
+      path = "#{File.dirname(path)}#{image_ext}" if has_image_ext(path) || has_audio_ext(path)
+      path
+    end
+
     def to_url(path)
-      url = path.nil? ? '' : path.sub(@audio_books_root, '')
-      url = "#{File.dirname(url)}#{image_ext}" if has_image_ext(url)
-      url
+      "#{request.scheme}://#{request.host}:#{request.port}#{to_path(path)}"
     end
 
     def book_duration(entries)

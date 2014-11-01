@@ -3,8 +3,8 @@
 <% end %>
 <ul class="catalog">
   <% for book in @books.keys %>
-    <% url = to_url(book) %>
-    <% img_url = to_url(book_image(@books[book])) %>
+    <% url = to_path(book) %>
+    <% img_url = to_path(book_image(@books[book])) %>
     <% title =  book_title(@books[book]) %>
     <li class="book">
         <img src="<%= img_url %>"/>

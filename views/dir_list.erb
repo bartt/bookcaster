@@ -3,7 +3,7 @@
 <% end %>
 <ul>
   <% for dir in @dirs %>
-    <% url = to_url(dir) %>
+    <% url = to_path(dir) %>
     <li><a href="<%= url %>"><%= url %></a></li>
   <% end %>
 </ul>
