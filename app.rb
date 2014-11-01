@@ -109,7 +109,12 @@ class BookCaster < Sinatra::Base
     end
 
     def select_books(entries)
-      entries.keys.select { |candidate| valid_book?(dir_entries(candidate)) }
+      books = {}
+      entries.keys.each do |candidate|
+        candidate_entries = dir_entries(candidate)
+        books[candidate] = candidate_entries if valid_book?(candidate_entries)
+      end
+      books
     end
 
     def select_dirs(entries)
@@ -120,6 +125,14 @@ class BookCaster < Sinatra::Base
       entries.keys.find do |entry|
         has_image_ext(entry) && File.file?(entry) && File.readable?(entry)
       end
+    end
+
+    def book_title(entries)
+      title_index = entries.keys.find{ |entry| entries[entry]['album'] && entries[entry]['album'] > '' }
+      author_index = entries.keys.find{ |entry| entries[entry]['artist'] && entries[entry]['artist'] > '' }
+      title = "#{entries[title_index]['album']}"
+      title += " by #{entries[author_index]['artist']}" if author_index
+      title
     end
 
     def image_ext
