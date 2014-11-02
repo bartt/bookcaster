@@ -38,7 +38,9 @@ class BookCaster < Sinatra::Base
       when 'm3u'
         erb :m3u, :content_type => :m3u
       when 'rss'
-        "#{book_path}.#{ext} returns a RSS feed"
+        nokogiri do |xml|
+          xml.foo 'bar'
+        end
       when 'jpg'
         image_path = book_image(@entries)
         send_file(image_path) if image_path
@@ -135,20 +137,32 @@ class BookCaster < Sinatra::Base
 
     def book_title(entries)
       title_index = entries.keys.find{ |entry| entries[entry] && entries[entry]['album'] && entries[entry]['album'] > '' }
-      author_index = entries.keys.find{ |entry| entries[entry] && entries[entry]['artist'] && entries[entry]['artist'] > '' }
       title = ''
-      title += "#{entries[title_index]['album']}" if title_index
-      title += " by #{entries[author_index]['artist']}" if author_index
+      title += entries[title_index]['album'] if title_index
       title
     end
 
+    def book_author(entries)
+      author_index = entries.keys.find{ |entry| entries[entry] && entries[entry]['artist'] && entries[entry]['artist'] > '' }
+      title = ''
+      title += entries[author_index]['artist'] if author_index
+      title
+    end
+
+    def book_title_and_author(entries)
+      "#{book_title(entries)} by #{book_author(entries)}"
+    end
+
     def book_m3u(entries)
+      title = book_title(entries)
+      author = book_author(entries)
       audio_files = entries.keys.select do |entry|
         entries[entry]
-      end
-      audio_files.collect do |file|
-        to_url(file)
-      end.join("\n")
+      end.sort!
+      "#EXTM3U\n\n" +
+        audio_files.collect do |file|
+          "#EXTINF:#{entries[file]['length']},#{title} - #{author}\n#{to_url(file)}"
+        end.flatten.join("\n\n")
     end
 
     def image_ext
