@@ -1,5 +1,6 @@
 require 'sinatra/base'
 require 'taglib'
+require 'nokogiri'
 
 HOUR = 60 * 60
 MIN = 60
@@ -64,14 +65,14 @@ class BookCaster < Sinatra::Base
                 link url
               }
               xml['itunes'].author author
-              audio_files.each do |file|
+              audio_files.each_with_index do |file, index|
                 xml.item {
-                  xml.title title
+                  xml.title "#{title} - Episode #{index + 1}"
                   xml.description description
                   xml.link that.to_url(file)
                   xml.enclosure('url' => that.to_url(file), 'length' => entries[file]['length'], 'type' => that.get_mime_type(file))
                   xml.guid that.to_url(file)
-                  xml['itunes'].duration that.duration_in_hours_and_minutes(entries[file]['length'])
+                  xml['itunes'].duration that.duration_formatted(entries[file]['length'])
                   xml.author author
                   xml['itunes'].author author
                   xml.pubDate entries[file]['mtime']
@@ -244,6 +245,10 @@ class BookCaster < Sinatra::Base
 
     def duration_in_hours_and_minutes(duration)
       '%d:%02d' % [duration / HOUR, (duration % HOUR) / MIN]
+    end
+
+    def duration_formatted(duration)
+      '%d:%02d:%02d' % [duration / HOUR, (duration % HOUR) / MIN, (duration % HOUR) % MIN]
     end
   end
 
