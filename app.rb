@@ -45,6 +45,7 @@ class BookCaster < Sinatra::Base
         url = to_url(book_path)
         image_url = to_url(book_image(@entries))
         audio_files = book_audio_files(@entries)
+        last_build_time = audio_files.collect { |file| @entries[file]['mtime'] }.max
         that = self
         entries = @entries
         nokogiri do |xml|
@@ -56,7 +57,7 @@ class BookCaster < Sinatra::Base
               xml['atom'].link('href' => "#{url}.rss",
                   'rel' => 'self', 'type' => 'application/rss+xml')
               xml.description description
-              xml.lastBuildDate audio_files.collect { |file| entries[file]['mtime'] }.max
+              xml.lastBuildDate last_build_time
               xml.language 'en'
               xml['itunes'].image('href'=> image_url)
               xml.image {
@@ -75,7 +76,7 @@ class BookCaster < Sinatra::Base
                   xml['itunes'].duration that.duration_formatted(entries[file]['length'])
                   xml.author author
                   xml['itunes'].author author
-                  xml.pubDate entries[file]['mtime']
+                  xml.pubDate last_build_time - index * 24 * HOUR
                 }
               end
             }
