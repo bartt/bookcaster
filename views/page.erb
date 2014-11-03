@@ -7,15 +7,21 @@
       <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
       .catalog {
+        display: -webkit-flex;
         display: flex;
+        -webkit-flex-direction: row;
         flex-direction: row;
+        -webkit-flex-wrap: wrap;
         flex-wrap: wrap;
+        -webkit-align-items: flex-end;
         align-items: flex-end;
         padding: 0;
       }
       .book {
         list-style: none;
         position: relative;
+        width: 240px;
+        flex-basis: auto;
       }
       .feed {
         position: absolute;
@@ -59,7 +65,7 @@
         margin: 10px;
       }
       img {
-        width: 200px;
+        width: 100%;
       }
     </style>
   </head>
