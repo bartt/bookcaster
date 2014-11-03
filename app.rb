@@ -38,8 +38,47 @@ class BookCaster < Sinatra::Base
       when 'm3u'
         erb :m3u, :content_type => :m3u
       when 'rss'
+        title = book_title(@entries)
+        author = book_author(@entries)
+        description = book_title_and_author(@entries)
+        url = to_url(book_path)
+        image_url = to_url(book_image(@entries))
+        audio_files = book_audio_files(@entries)
+        that = self
+        entries = @entries
         nokogiri do |xml|
-          xml.foo 'bar'
+          xml.rss('xmlns:itunes' => 'http://www.itunes.com/dtds/podcast-1.0.dtd',
+              'xml:lang'=> 'en', 'version'=>'2.0', 'xmlns:atom' => 'http://www.w3.org/2005/Atom') {
+            xml.channel {
+              xml.title title
+              xml.link url
+              xml['atom'].link('href' => 'http://www.podcastgenerator.net/demoV2/pg/feed.xml',
+                  'rel' => 'self', 'type' => 'application/rss+xml')
+              xml.description description
+              xml.lastBuildDate audio_files.collect { |file| entries[file]['mtime'] }.max
+              xml.language 'en'
+              xml['itunes'].image('href'=> image_url)
+              xml.image {
+                url image_url
+                title title
+                link url
+              }
+              xml['itunes'].author author
+              audio_files.each do |file|
+                xml.item {
+                  xml.title title
+                  xml.description description
+                  xml.link that.to_url(file)
+                  xml.enclosure('url' => that.to_url(file), 'length' => entries[file]['length'], 'type' => that.get_mime_type(file))
+                  xml.guid that.to_url(file)
+                  xml['itunes'].duration that.duration_in_hours_and_minutes(entries[file]['length'])
+                  xml.author author
+                  xml['itunes'].author author
+                  xml.pubDate entries[file]['mtime']
+                }
+              end
+            }
+          }
         end
       when 'jpg'
         image_path = book_image(@entries)
@@ -86,7 +125,7 @@ class BookCaster < Sinatra::Base
       Dir.glob(File.join(dir_path, '*')).each do |entry|
         attr_map[entry] = File.file?(entry) && File.readable?(entry) && TagLib::FileRef.open(entry) do |audio_file|
           unless audio_file.null?
-            attrs = {}
+            attrs = { 'mtime' => File.stat(entry).mtime }
             %w(title album artist comment genre track year).each do |attr|
               attrs[attr] = audio_file.tag.send(attr.to_sym)
             end
@@ -153,12 +192,16 @@ class BookCaster < Sinatra::Base
       "#{book_title(entries)} by #{book_author(entries)}"
     end
 
+    def book_audio_files(entries)
+      entries.keys.select do |entry|
+        entries[entry]
+      end.sort!
+    end
+
     def book_m3u(entries)
       title = book_title(entries)
       author = book_author(entries)
-      audio_files = entries.keys.select do |entry|
-        entries[entry]
-      end.sort!
+      audio_files = book_audio_files(entries)
       "#EXTM3U\n\n" +
         audio_files.collect do |file|
           "#EXTINF:#{entries[file]['length']},#{title} - #{author}\n#{to_url(file)}"
@@ -175,6 +218,14 @@ class BookCaster < Sinatra::Base
 
     def has_audio_ext(entry)
       %w(mp3 mp4).include?(File.extname(entry).downcase)
+    end
+
+    def get_mime_type(entry)
+      case File.extname(entry).downcase
+      when '.mp3', '.mp4'
+        'audio/mpeg'
+      else ''
+      end
     end
 
     def to_path(file)
