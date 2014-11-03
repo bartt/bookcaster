@@ -52,7 +52,7 @@ class BookCaster < Sinatra::Base
             xml.channel {
               xml.title title
               xml.link url
-              xml['atom'].link('href' => 'http://www.podcastgenerator.net/demoV2/pg/feed.xml',
+              xml['atom'].link('href' => "#{url}.rss",
                   'rel' => 'self', 'type' => 'application/rss+xml')
               xml.description description
               xml.lastBuildDate audio_files.collect { |file| entries[file]['mtime'] }.max
