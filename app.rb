@@ -18,6 +18,7 @@ class BookCaster < Sinatra::Base
 
   configure do
     mime_type :m3u, 'audio/x-mpegurl'
+    mime_type :opml, 'application/xml'
   end
 
   get '/' do
@@ -38,6 +39,8 @@ class BookCaster < Sinatra::Base
       case ext
       when 'm3u'
         erb :m3u, :content_type => :m3u
+      when 'opml'
+        erb :opml, :content_type => :opml
       when 'rss'
         title = book_title(@entries)
         author = book_author(@entries)
