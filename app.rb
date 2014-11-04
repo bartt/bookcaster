@@ -19,13 +19,13 @@ class BookCaster < Sinatra::Base
   configure do
     mime_type :m3u, 'audio/x-mpegurl'
     mime_type :opml, 'application/xml'
+    enable :logging
   end
 
   get '/' do
     validate_books_root
     @entries = dir_entries(@audio_books_root)
     halt 404, '<h1>Sorry, the root directory contains more then just books, which is not allowed</h1>' unless valid_dir?(@entries)
-    '/ is a directory'
     @books = select_books(@entries)
     @dirs = select_dirs(@entries)
     erb :directory, :layout => :page
@@ -116,7 +116,8 @@ class BookCaster < Sinatra::Base
       @entries = dir_entries(book_path)
       halt 404, "<h1>Sorry, the book #{request.path_info} contains other books, which is not allowed</h1>" unless valid_book?(@entries)
       @duration = book_duration(@entries)
-      "#{book_path} is a #{duration_in_hours_and_minutes(@duration)} long book"
+      @books = {book_path => dir_entries(book_path)}
+      erb :book_list, :layout => :page
     end
   end
 

@@ -1,25 +1,28 @@
 <ul class="catalog">
+  <% multiple_books = @books.size > 1 %>
   <% for book in @books.keys %>
     <% url = to_path(book) %>
     <% img_url = to_path(book_image(@books[book])) %>
     <% title_and_author =  book_title_and_author(@books[book]) %>
     <li class="book">
+      <% if multiple_books %><a href="<%= url %>"><% end %>
         <img src="<%= img_url %>"/>
-        <a class="feed" href="<%= "#{url}.rss" %>" title="Listen to '<%= title_and_author %>' in a podcatcher">
-          <span class="fa-stack fa-lg">
-            <i class="fa fa-circle fa-stack-2x"></i>
-            <i class="fa fa-rss fa-inverse fa-stack-1x"></i>
-          </span>
-        </a>
-        <a class="play" href="<%= "#{url}.m3u" %>" title="Listen online to '<%= title_and_author %>'">
-          <span class="fa-stack">
-            <i class="fa fa-circle fa-stack-2x"></i>
-            <i class="fa fa-play fa-inverse fa-stack-1x"></i>
-          <span>
-        </a>
-        <div class="duration">
-          <%= duration_in_hours_and_minutes(book_duration(@books[book])) %>
-        </div>
+      <% if multiple_books %></a><% end %>
+      <a class="feed" href="<%= "#{url}.rss" %>" title="Listen to '<%= title_and_author %>' in a podcatcher">
+        <span class="fa-stack fa-lg">
+          <i class="fa fa-circle fa-stack-2x"></i>
+          <i class="fa fa-rss fa-inverse fa-stack-1x"></i>
+        </span>
+      </a>
+      <a class="play" href="<%= "#{url}.m3u" %>" title="Listen online to '<%= title_and_author %>'">
+        <span class="fa-stack">
+          <i class="fa fa-circle fa-stack-2x"></i>
+          <i class="fa fa-play fa-inverse fa-stack-1x"></i>
+        <span>
+      </a>
+      <div class="duration">
+        <%= duration_in_hours_and_minutes(book_duration(@books[book])) %>
+      </div>
     </li>
   <% end %>
 </ul>
