@@ -60,7 +60,7 @@ class BookCaster < Sinatra::Base
               xml['atom'].link('href' => "#{url}.rss",
                   'rel' => 'self', 'type' => 'application/rss+xml')
               xml.description description
-              xml.lastBuildDate last_build_time
+              xml.lastBuildDate last_build_time.strftime('%a, %d %b %Y %H:%M:%S %z')
               xml.language 'en'
               xml['itunes'].image('href'=> image_url)
               xml.image {
@@ -77,9 +77,9 @@ class BookCaster < Sinatra::Base
                   xml.enclosure('url' => that.to_url(file), 'length' => entries[file]['length'], 'type' => that.get_mime_type(file))
                   xml.guid that.to_url(file)
                   xml['itunes'].duration that.duration_formatted(entries[file]['length'])
-                  xml.author author
+                  xml.author "email@example.com (#{author})"
                   xml['itunes'].author author
-                  xml.pubDate last_build_time - index * 24 * HOUR
+                  xml.pubDate (last_build_time - (index * 24 * HOUR)).strftime('%a, %d %b %Y %H:%M:%S %z')
                 }
               end
             }
