@@ -241,7 +241,14 @@ class BookCaster < Sinatra::Base
     end
 
     def to_url(path)
-      "#{request.scheme}://#{request.host}:#{request.port}#{to_path(path)}"
+      url = "#{request.scheme}://#{request.host}"
+      url += ":#{request.port}" unless %w(80 443).include? request.port
+      url += "#{to_path(path)}"
+      url
+    end
+
+    def to_itpc(path)
+      to_url(path).gsub(/^https?/, 'itpc')
     end
 
     def book_duration(entries)
