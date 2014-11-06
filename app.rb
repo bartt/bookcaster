@@ -242,7 +242,7 @@ class BookCaster < Sinatra::Base
 
     def to_url(path)
       url = "#{request.scheme}://#{request.host}"
-      url += ":#{request.port}" unless %w(80 443).include? request.port
+      url += ":#{request.port}" unless [80, 443].include? request.port
       url += "#{to_path(path)}"
       url
     end
