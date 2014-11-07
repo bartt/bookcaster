@@ -31,6 +31,11 @@ class BookCaster < Sinatra::Base
     erb :directory, :layout => :page
   end
 
+  get '/robots.txt' do
+    content_type 'text/plain'
+    "User-agent: *\nDisallow: /\n"
+  end
+
   get '/*/?:book.:ext?' do |path, book, ext|
     validate_books_root
     book_path = File.join(@audio_books_root, path, book)
