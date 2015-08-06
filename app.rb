@@ -74,6 +74,12 @@ class BookCaster < Sinatra::Base
                 link url
               }
               xml['itunes'].author author
+              xml['itunes'].explicit 'clean'
+              xml['itunes'].category 'Audiobooks'
+              xml['itunes'].owner {
+                xml['itunes'].name 'Bookcaster'
+                xml['itunes'].email 'bookcaster@bartt.me'
+              }
               audio_files.each_with_index do |file, index|
                 xml.item {
                   xml.title "#{title} - Episode #{index + 1}"
