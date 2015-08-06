@@ -75,11 +75,12 @@ class BookCaster < Sinatra::Base
               }
               xml['itunes'].author author
               xml['itunes'].explicit 'clean'
-              xml['itunes'].category('text' => 'Audiobooks')
+              xml['itunes'].category('text' => 'Kids &amp; Family')
               xml['itunes'].owner {
                 xml['itunes'].name 'Bookcaster'
                 xml['itunes'].email 'bookcaster@bartt.me'
               }
+              audio_file_count = audio_files.count
               audio_files.each_with_index do |file, index|
                 xml.item {
                   xml.title "#{title} - Episode #{index + 1}"
@@ -90,7 +91,7 @@ class BookCaster < Sinatra::Base
                   xml['itunes'].duration that.duration_formatted(entries[file]['length'])
                   xml.author "email@example.com (#{author})"
                   xml['itunes'].author author
-                  xml.pubDate (last_build_time - (index * 24 * HOUR)).strftime('%a, %d %b %Y %H:%M:%S %z')
+                  xml.pubDate (last_build_time - (count + index) * 24 * HOUR).strftime('%a, %d %b %Y %H:%M:%S %z')
                 }
               end
             }
