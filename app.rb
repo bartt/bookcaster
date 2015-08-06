@@ -75,7 +75,7 @@ class BookCaster < Sinatra::Base
               }
               xml['itunes'].author author
               xml['itunes'].explicit 'clean'
-              xml['itunes'].category 'Audiobooks'
+              xml['itunes'].category('text' => 'Audiobooks')
               xml['itunes'].owner {
                 xml['itunes'].name 'Bookcaster'
                 xml['itunes'].email 'bookcaster@bartt.me'
