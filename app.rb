@@ -259,8 +259,8 @@ class BookCaster < Sinatra::Base
       url
     end
 
-    def to_feed(path)
-      to_url(path).gsub(/^https?/, 'feed')
+    def to_podcast(path)
+      to_url(path).gsub(/^https?/, 'podcast')
     end
 
     def book_duration(entries)
