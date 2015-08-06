@@ -8,7 +8,7 @@
       <% if multiple_books %><a href="<%= url %>"><% end %>
         <img src="<%= img_url %>"/>
       <% if multiple_books %></a><% end %>
-      <a class="feed" href="<%= "#{to_itpc(url)}.rss" %>" title="Listen to '<%= title_and_author %>' in a podcatcher">
+      <a class="feed" href="<%= "#{to_feed(url)}.rss" %>" title="Listen to '<%= title_and_author %>' in a podcatcher">
         <span class="fa-stack fa-lg">
           <i class="fa fa-circle fa-stack-2x"></i>
           <i class="fa fa-rss fa-inverse fa-stack-1x"></i>
