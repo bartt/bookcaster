@@ -84,7 +84,7 @@
     <script>
       $('.feed').click(function (e) {
         e.stopPropagation();
-        var podcastURL = e.target.href;
+        var podcastURL = e.target.closest('a').href;
         var downcastURL = podcastURL.replace(/^podcast/, 'downcast');
         setTimeout(function () {
           document.location = downcastURL;
