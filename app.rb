@@ -51,7 +51,7 @@ class BookCaster < Sinatra::Base
         author = book_author(@entries)
         description = book_title_and_author(@entries)
         url = to_url(book_path)
-        image_url = to_url(book_image(@entries))
+        image_url = to_url(book_image(@entries), true)
         audio_files = book_audio_files(@entries)
         last_build_time = audio_files.collect { |file| @entries[file]['mtime'] }.max
         that = self
@@ -75,7 +75,7 @@ class BookCaster < Sinatra::Base
               }
               xml['itunes'].author author
               xml['itunes'].explicit 'clean'
-              xml['itunes'].category('text' => 'Kids &amp; Family')
+              xml['itunes'].category('text' => 'Kids & Family')
               xml['itunes'].owner {
                 xml['itunes'].name 'Bookcaster'
                 xml['itunes'].email 'bookcaster@bartt.me'
@@ -86,7 +86,7 @@ class BookCaster < Sinatra::Base
                   xml.title "#{title} - Episode #{index + 1}"
                   xml.description description
                   xml.link that.to_url(file)
-                  xml.enclosure('url' => that.to_url(file), 'length' => entries[file]['length'], 'type' => that.get_mime_type(file))
+                  xml.enclosure('url' => that.to_url(file, true), 'length' => entries[file]['length'], 'type' => that.get_mime_type(file))
                   xml.guid that.to_url(file)
                   xml['itunes'].duration that.duration_formatted(entries[file]['length'])
                   xml.author "email@example.com (#{author})"
@@ -252,8 +252,8 @@ class BookCaster < Sinatra::Base
       path
     end
 
-    def to_url(path)
-      url = "#{request.scheme}://#{request.host}"
+    def to_url(path, force_http = false)
+      url = "#{force_http ? 'http' : request.scheme}://#{request.host}"
       url += ":#{request.port}" unless [80, 443].include? request.port
       url += "#{to_path(path)}"
       url
