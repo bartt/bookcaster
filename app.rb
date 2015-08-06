@@ -259,8 +259,9 @@ class BookCaster < Sinatra::Base
       url
     end
 
+    # itpc:// works with iTunes in desktop Safari and with Downcast on iOS.
     def to_podcast(path)
-      to_url(path).gsub(/^https?/, 'podcast')
+      to_url(path).gsub(/^https?/, 'itpc')
     end
 
     def book_duration(entries)

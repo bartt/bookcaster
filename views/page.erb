@@ -83,9 +83,10 @@
     </script>
     <script>
       $('.feed').click(function (e) {
+        e.preventDefault();
         e.stopPropagation();
-        var podcastURL = $(e.target).closest('a').attr('href');
-        var downcastURL = podcastURL.replace(/^podcast/, 'downcast');
+        var downcastURL = $(e.target).closest('a').attr('href');
+        var podcastURL = downcastURL.replace(/^podcast/, 'feed');
         if (window.navigator.userAgent.match(/^Mozilla\/5\.0 \((iP[oa]d|iPhone)/)) {
           iframe = document.createElement('iframe');
           iframe.setAttribute('style', 'display:none;');
