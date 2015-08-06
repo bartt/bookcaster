@@ -51,7 +51,7 @@ class BookCaster < Sinatra::Base
         author = book_author(@entries)
         description = book_title_and_author(@entries)
         url = to_url(book_path)
-        image_url = to_url(book_image(@entries), true)
+        image_url = to_url(book_image(@entries))
         audio_files = book_audio_files(@entries)
         last_build_time = audio_files.collect { |file| @entries[file]['mtime'] }.max
         that = self
@@ -86,7 +86,7 @@ class BookCaster < Sinatra::Base
                   xml.title "#{title} - Episode #{index + 1}"
                   xml.description description
                   xml.link that.to_url(file)
-                  xml.enclosure('url' => that.to_url(file, true), 'length' => entries[file]['length'], 'type' => that.get_mime_type(file))
+                  xml.enclosure('url' => that.to_url(file), 'length' => entries[file]['length'], 'type' => that.get_mime_type(file))
                   xml.guid that.to_url(file)
                   xml['itunes'].duration that.duration_formatted(entries[file]['length'])
                   xml.author "email@example.com (#{author})"
