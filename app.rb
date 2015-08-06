@@ -91,7 +91,7 @@ class BookCaster < Sinatra::Base
                   xml['itunes'].duration that.duration_formatted(entries[file]['length'])
                   xml.author "email@example.com (#{author})"
                   xml['itunes'].author author
-                  xml.pubDate (last_build_time - (count + index) * 24 * HOUR).strftime('%a, %d %b %Y %H:%M:%S %z')
+                  xml.pubDate (last_build_time - (audio_file_count + index) * 24 * HOUR).strftime('%a, %d %b %Y %H:%M:%S %z')
                 }
               end
             }
