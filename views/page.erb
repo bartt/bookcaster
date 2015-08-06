@@ -90,12 +90,15 @@
           iframe = document.createElement('iframe');
           iframe.setAttribute('style', 'display:none;');
           iframe.setAttribute('src', downcastURL);
-          document.body.appendChild(iframe);
-          setTimeout(function () {
-            if (!document.hidden) {
-              iframe.setAttribute('src', podcastURL);
-            }
+          var podcastTimeoutID = setTimeout(function () {
+            iframe.setAttribute('src', podcastURL);
           }.bind(this), 600);
+          document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+              window.clearTimeout(podcastTimeoutID)
+            }
+          });
+          document.body.appendChild(iframe);
         } else {
           setTimeout(function () {
             document.location = downcastURL;
