@@ -81,34 +81,5 @@
       ga('require', 'displayfeatures');
       ga('send', 'pageview');
     </script>
-    <script>
-      $('.feed').click(function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var downcastURL = $(e.target).closest('a').attr('href');
-        var podcastURL = downcastURL.replace(/^podcast/, 'feed');
-        if (window.navigator.userAgent.match(/^Mozilla\/5\.0 \((iP[oa]d|iPhone)/)) {
-          iframe = document.createElement('iframe');
-          iframe.setAttribute('style', 'display:none;');
-          iframe.setAttribute('src', downcastURL);
-          var podcastTimeoutID = setTimeout(function () {
-            iframe.setAttribute('src', podcastURL);
-          }.bind(this), 600);
-          document.addEventListener('visibilitychange', function () {
-            if (document.hidden) {
-              window.clearTimeout(podcastTimeoutID)
-            }
-          });
-          document.body.appendChild(iframe);
-        } else {
-          setTimeout(function () {
-            document.location = downcastURL;
-          }.bind(this), 0);
-          setTimeout(function () {
-            document.location = podcastURL;
-          }.bind(this), 600)
-        }
-      })
-    </script>
   </body>
 </html>
