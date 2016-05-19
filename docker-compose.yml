@@ -1,0 +1,8 @@
+web:
+  build: .
+  ports:
+    - "9292:9292"
+  volumes:
+    - .:/bookcaster
+    - ./tmp/audiobooks:/audiobooks
+  command: rackup

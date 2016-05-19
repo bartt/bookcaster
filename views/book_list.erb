@@ -7,7 +7,23 @@
     <li class="book">
       <% if multiple_books %><a href="<%= url %>"><% end %>
         <img src="<%= img_url %>"/>
-      <% if multiple_books %></a><% end %>
+      <% if multiple_books %>
+          </a>
+      <% else %>
+        <% content_for :title do %>
+          Listen to <%= title_and_author %>
+        <% end %>
+        <% content_for :meta do %>
+          <meta property="og:title" content="Listen to <%= title_and_author %>">
+          <meta property="og:url" content="<%= to_url(url) %>">
+          <meta property="og:image" content="<%= to_url(img_url) %>">
+          <meta property="og:description" content="Listen to <%= title_and_author %>">
+          <meta property="og:locale" content="en_US">
+          <meta name="twitter:card" content="summary">
+          <meta name="twitter:site" content="@bartt">
+          <meta name="twitter:creator" content="@bartt">
+        <% end %>
+      <% end %>
       <a class="feed" href="<%= "#{to_podcast(url)}.rss" %>" title="Listen to '<%= title_and_author %>' in a podcatcher">
         <span class="fa-stack fa-lg">
           <i class="fa fa-circle fa-stack-2x"></i>

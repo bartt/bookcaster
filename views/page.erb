@@ -4,7 +4,36 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Audiobooks as Podcasts</title>
+    <meta name="theme-color" content="#014BA0">
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <meta name="msapplication-TileColor" content="#00bffb">
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+
+    <%= yield_content :meta %>
+    <title>
+      <% if content_for?(:title) %>
+        <%= yield_content :title %>
+      <% else %>
+          Audiobooks as Podcasts
+      <% end %>
+    </title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
     <style>
@@ -80,6 +109,35 @@
       ga('create', 'UA-168047-7', 'auto');
       ga('require', 'displayfeatures');
       ga('send', 'pageview');
+    </script>
+    <script>
+      $('.feed').click(function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var downcastURL = $(e.target).closest('a').attr('href');
+        var podcastURL = downcastURL.replace(/^podcast/, 'feed');
+        if (window.navigator.userAgent.match(/^Mozilla\/5\.0 \((iP[oa]d|iPhone)/)) {
+          iframe = document.createElement('iframe');
+          iframe.setAttribute('style', 'display:none;');
+          iframe.setAttribute('src', downcastURL);
+          var podcastTimeoutID = setTimeout(function () {
+            iframe.setAttribute('src', podcastURL);
+          }.bind(this), 600);
+          document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+              window.clearTimeout(podcastTimeoutID)
+            }
+          });
+          document.body.appendChild(iframe);
+        } else {
+          setTimeout(function () {
+            document.location = downcastURL;
+          }.bind(this), 0);
+          setTimeout(function () {
+            document.location = podcastURL;
+          }.bind(this), 600)
+        }
+      })
     </script>
   </body>
 </html>

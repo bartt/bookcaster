@@ -1,4 +1,5 @@
 require 'sinatra/base'
+require 'sinatra/content_for'
 require 'taglib'
 require 'nokogiri'
 
@@ -6,6 +7,7 @@ HOUR = 60 * 60
 MIN = 60
 
 class BookCaster < Sinatra::Base
+  helpers Sinatra::ContentFor
 
   def initialize
     @audio_books_root = ENV['AUDIO_BOOKS_ROOT'] && ENV['AUDIO_BOOKS_ROOT'].dup || '/audiobooks'
@@ -19,6 +21,7 @@ class BookCaster < Sinatra::Base
   configure do
     mime_type :m3u, 'audio/x-mpegurl'
     mime_type :opml, 'application/xml'
+    mime_type :jpg, 'image/jpeg'
     enable :logging
   end
 
