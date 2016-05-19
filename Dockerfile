@@ -2,7 +2,8 @@ FROM bartt/ruby:2.1.3
 MAINTAINER Bart Teeuwisse <bart@thecodemill.biz>
 
 RUN apt-get install -y libtag1-dev
-COPY Gemfile Gemfile.lock app.rb config.ru views/ /bookcaster/
+COPY Gemfile Gemfile.lock app.rb config.ru /bookcaster/
+COPY views/ /bookcaster/views/
 RUN cd /bookcaster && bundle
 
 VOLUME ["/bookcaster", "/audiobooks"]
