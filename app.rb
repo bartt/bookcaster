@@ -251,7 +251,7 @@ class BookCaster < Sinatra::Base
 
     def to_path(file)
       path = file.nil? ? '' : file.sub(@audio_books_root, '')
-      path = "/#{File.basename(path)}" if has_image_ext(path) || has_audio_ext(path)
+      path = "#{File.dirname(path)}/#{File.basename(path)}" if has_image_ext(path) || has_audio_ext(path)
       path
     end
 
