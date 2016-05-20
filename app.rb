@@ -225,7 +225,7 @@ class BookCaster < Sinatra::Base
       audio_files = book_audio_files(entries)
       "#EXTM3U\n\n" +
         audio_files.collect do |file|
-          "#EXTINF:#{entries[file]['length']},#{title} - #{author}\n#{to_url(file)}"
+          "#EXTINF:#{entries[file]['length']},#{title} - #{author}\n#{to_url(file, force_http = true)}"
         end.flatten.join("\n\n")
     end
 
