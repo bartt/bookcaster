@@ -20,5 +20,11 @@
 /.bundle/
 /lib/bundler/man/
 
+## IntelliJ
+/.idea/
+
+## NodeJS
+/node_modules/
+
 # unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
 .rvmrc

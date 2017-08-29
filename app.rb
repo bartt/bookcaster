@@ -9,6 +9,10 @@ MIN = 60
 class BookCaster < Sinatra::Base
   helpers Sinatra::ContentFor
 
+  use Rack::Auth::Basic, "Protected Books" do |username, password|
+    ENV['AUDIO_BOOKS_USER'] && ENV['AUDIO_BOOKS_PASSWORD'] && username == ENV['AUDIO_BOOKS_USER'] && password == ENV['AUDIO_BOOKS_PASSWORD']
+  end
+
   def initialize
     @audio_books_root = ENV['AUDIO_BOOKS_ROOT'] && ENV['AUDIO_BOOKS_ROOT'].dup || '/audiobooks'
     # Remove trailing slashes
