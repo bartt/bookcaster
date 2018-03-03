@@ -1,6 +1,7 @@
 ### Ruby template
 *.gem
 *.rbc
+*.tags*
 /.config
 /coverage/
 /InstalledFiles

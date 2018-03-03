@@ -1,15 +1,17 @@
-FROM bartt/ruby:2.1.3
-MAINTAINER Bart Teeuwisse <bart@thecodemill.biz>
+FROM ruby:alpine
 
-RUN apt-get install -y libtag1-dev
-COPY Gemfile Gemfile.lock app.rb config.ru /bookcaster/
+RUN apk add --no-cache bash build-base libxml2-dev libxslt-dev taglib-dev ca-certificates davfs2
+RUN mkdir /webdav
+
+RUN gem install --no-rdoc --no-ri bundler
+RUN gem install nokogiri
+COPY Gemfile app.rb config.ru /bookcaster/
 COPY views/ /bookcaster/views/
+COPY docker-entrypoint.sh /usr/local/bin
 RUN cd /bookcaster && bundle --without=development
 
-VOLUME ["/bookcaster", "/audiobooks"]
 WORKDIR /bookcaster
 
 EXPOSE 9292
-USER nobody
 
-CMD ["rackup", "--env", "production"]
+ENTRYPOINT ["bash", "docker-entrypoint.sh"]

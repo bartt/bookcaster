@@ -2,6 +2,8 @@ require 'sinatra/base'
 require 'sinatra/content_for'
 require 'taglib'
 require 'nokogiri'
+require 'yaml'
+require 'thin'
 
 HOUR = 60 * 60
 MIN = 60
@@ -27,6 +29,8 @@ class BookCaster < Sinatra::Base
     mime_type :opml, 'application/xml'
     mime_type :jpg, 'image/jpeg'
     enable :logging
+    set :server, :thin
+    enable :threaded
   end
 
   get '/' do
@@ -146,8 +150,10 @@ class BookCaster < Sinatra::Base
     end
 
     def dir_entries(dir_path)
-      attr_map = {}
+      attr_map = YAML.load(IO.read(File.join(dir_path, 'entries.yaml'))) rescue {}
+      return attr_map unless attr_map.empty?
       Dir.glob(File.join(dir_path, '*')).each do |entry|
+        puts entry
         attr_map[entry] = File.file?(entry) && File.readable?(entry) && TagLib::FileRef.open(entry) do |audio_file|
           unless audio_file.null?
             attrs = { 'mtime' => File.stat(entry).mtime }
@@ -161,6 +167,7 @@ class BookCaster < Sinatra::Base
           end
         end
       end
+      IO.write(File.join(dir_path, 'entries.yaml'), YAML.dump(attr_map)) unless valid_dir?(attr_map);
       attr_map
     end
 

@@ -1,12 +1,13 @@
 # A sample Gemfile
 source "https://rubygems.org"
 
-gem 'sinatra', '~> 1.4.7'
-gem 'sinatra-contrib', '~> 1.4.7'
-gem 'rack', '~> 1.5.2'
-gem 'taglib-ruby', '~> 0.7.0'
-gem 'nokogiri', '~> 1.6.2.1'
+gem 'sinatra', '~> 2.0.1'
+gem 'sinatra-contrib', '~> 2.0.1'
+gem 'rack', '~> 2.0.4'
+gem 'taglib-ruby', '~> 0.7.1'
+gem 'nokogiri', '~> 1.8.2'
+gem 'thin', '~> 1.7.2'
 
 group :development do
-  gem 'rerun', '0.10.0'
+  gem 'rerun', '~> 0.13.0'
 end
