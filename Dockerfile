@@ -8,6 +8,7 @@ RUN gem install nokogiri
 COPY Gemfile app.rb config.ru /bookcaster/
 COPY views/ /bookcaster/views/
 COPY docker-entrypoint.sh /usr/local/bin
+COPY davfs2.conf /etc/davfs2
 RUN cd /bookcaster && bundle --without=development
 
 WORKDIR /bookcaster

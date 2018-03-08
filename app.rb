@@ -22,6 +22,8 @@ class BookCaster < Sinatra::Base
     super
     # Serve audio book static files
     Sinatra::Base.set :public_folder, @audio_books_root
+    @auth_user = ENV['AUDIO_BOOKS_USER']
+    @auth_password = ENV['AUDIO_BOOKS_PASSWORD']
   end
 
   configure do
@@ -150,10 +152,11 @@ class BookCaster < Sinatra::Base
     end
 
     def dir_entries(dir_path)
-      attr_map = YAML.load(IO.read(File.join(dir_path, 'entries.yaml'))) rescue {}
+      # YAML.load returns false when entries.yaml is empty.
+      attr_map = YAML.load(IO.read(File.join(dir_path, 'entries.yaml'))) || {} rescue {}
       return attr_map unless attr_map.empty?
       Dir.glob(File.join(dir_path, '*')).each do |entry|
-        puts entry
+        next if entry =~ /favicon.*/
         attr_map[entry] = File.file?(entry) && File.readable?(entry) && TagLib::FileRef.open(entry) do |audio_file|
           unless audio_file.null?
             attrs = { 'mtime' => File.stat(entry).mtime }
@@ -267,7 +270,7 @@ class BookCaster < Sinatra::Base
     end
 
     def to_url(path, force_http = false)
-      url = "#{force_http ? 'http' : request.scheme}://#{request.host}"
+      url = "#{force_http ? 'http' : request.scheme}://#{@auth_user}:#{@auth_password}@#{request.host}"
       url += ":#{request.port}" unless [80, 443].include? request.port
       url += "#{to_path(path)}"
       url

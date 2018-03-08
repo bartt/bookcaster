@@ -11,6 +11,10 @@ fi
 echo "$WEBDAV_URL /webdav davfs user,noauto,uid=root,file_mode=600,dir_mode=700 0 1" >> /etc/fstab
 echo "/webdav $WEBDAV_USERNAME \"$WEBDAV_PASSWORD\"" >> /etc/davfs2/secrets
 
+if [[ -f /var/run/mount.davfs/webdav.pid ]]; then
+	echo "Removing old process ID file"
+	rm /var/run/mount.davfs/webdav.pid
+fi
 mount -t davfs /webdav
 echo "Mounted!"
 
