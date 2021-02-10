@@ -265,6 +265,8 @@ class BookCaster < Sinatra::Base
 
     def to_path(file)
       path = file.nil? ? '' : file.sub(@audio_books_root, '')
+      # Correct for paths in the entries.yaml files which still include /webdav from when the files were stored by transip.nl.
+      path = path.sub('/webdav', '')
       path = "#{File.dirname(path)}/#{File.basename(path)}" if has_image_ext(path) || has_audio_ext(path)
       path
     end
@@ -282,7 +284,7 @@ class BookCaster < Sinatra::Base
     end
 
     def book_duration(entries)
-      entries.values.compact.inject(0) { |sum, attributes| sum += attributes['length'] }
+      entries.values.compact.inject(0) { |sum, attributes| sum += attributes['length'] || 0 }
     end
 
     def duration_in_hours_and_minutes(duration)

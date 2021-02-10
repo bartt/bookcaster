@@ -1,21 +1,18 @@
 #!/bin/bash
 set -e
 
-if [[ -n "$WEBDAV_URL" ]] && [[ -n "$WEBDAV_USERNAME" ]] && [[ -n "$WEBDAV_PASSWORD" ]]; then
-	echo "Mounting $WEBDAV_URL"
+if [[ -n "$S3_ENDPOINT_URL" ]] && [[ -n "$ACCESS_KEY_ID" ]] && [[ -n "$AWS_SECRET_ACCESS_KEY" ]]; then
+	echo "Mounting $S3_ENDPOINT_URL"
 else
 	echo "Not all required environment variables are set"
 	exit 1
 fi
 
-echo "$WEBDAV_URL /webdav davfs user,noauto,uid=root,file_mode=600,dir_mode=700 0 1" >> /etc/fstab
-echo "/webdav $WEBDAV_USERNAME \"$WEBDAV_PASSWORD\"" >> /etc/davfs2/secrets
+echo "$ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY" > /etc/passwd-s3fs
+chmod 600 /etc/passwd-s3fs
 
-if [[ -f /var/run/mount.davfs/webdav.pid ]]; then
-	echo "Removing old process ID file"
-	rm /var/run/mount.davfs/webdav.pid
-fi
-mount -t davfs /webdav
+s3fs icloud:/audiobooks /audiobooks -o passwd_file=/etc/passwd-s3fs -o url=$S3_ENDPOINT_URL -o nosuid,nonempty,nodev,allow_other,use_path_request_style,default_acl=private
+
 echo "Mounted!"
 
 trap "echo TRAPed signal" HUP INT QUIT TERM
@@ -23,5 +20,5 @@ trap "echo TRAPed signal" HUP INT QUIT TERM
 cd /bookcaster
 rackup --env production
 
-umount /webdav
+umount /audiobooks
 echo "Unmounted!"

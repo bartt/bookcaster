@@ -1,4 +1,16 @@
 web:
+  privileged: true
+  cap_add:
+    - SYS_ADMIN
+  devices:
+    - /dev/fuse
+  environment:
+    - ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - S3_ENDPOINT_URL=https://s3.us-west-1.wasabisys.com/
+    - AUDIO_BOOKS_USER
+    - AUDIO_BOOKS_PASSWORD
+    - AUDIO_BOOKS_ROOT
   build: .
   ports:
     - "9292:9292"

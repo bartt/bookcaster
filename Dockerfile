@@ -1,15 +1,26 @@
-FROM ruby:alpine
+FROM ruby:2-alpine
 
-RUN apk add --no-cache bash build-base libxml2-dev libxslt-dev taglib-dev ca-certificates davfs2
-RUN mkdir /webdav
-
-RUN gem install --no-rdoc --no-ri bundler
-RUN gem install nokogiri
+RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+RUN apk update && \
+  apk add --no-cache \
+    bash \
+    build-base \
+    libxml2-dev \
+    libxslt-dev \
+    taglib-dev \
+    ca-certificates \
+    s3fs-fuse@testing
+RUN mkdir /audiobooks
+RUN gem install \
+  bundler \
+  nokogiri
 COPY Gemfile app.rb config.ru /bookcaster/
 COPY views/ /bookcaster/views/
 COPY docker-entrypoint.sh /usr/local/bin
-COPY davfs2.conf /etc/davfs2
-RUN cd /bookcaster && bundle --without=development
+RUN cd /bookcaster && bundle config set --local without 'development' && bundle
+RUN apk del \
+  build-base && \
+  rm -rf /var/cache/apk/*;
 
 WORKDIR /bookcaster
 
