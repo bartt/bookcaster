@@ -4,7 +4,7 @@ export async function up(knex: Knex): Promise<any> {
   return knex.schema
     .createTable('books', (table) => {
       table.increments('id').primary();
-      table.string('name', 255).notNullable();
+      table.string('name', 255).notNullable().index();
       table.string('title', 255);
       table.text('description');
       table.json('files');
@@ -12,7 +12,7 @@ export async function up(knex: Knex): Promise<any> {
     })
     .createTable('authors', (table) => {
       table.increments('id').primary();
-      table.string('name', 255).notNullable();
+      table.string('name', 255).notNullable().index();
     })
     .createTable('books_authors', (table) => {
       table.increments('id').primary();
@@ -24,7 +24,7 @@ export async function up(knex: Knex): Promise<any> {
     })
     .createTable('categories', (table) => {
       table.increments('id').primary();
-      table.string('name', 255).notNullable();
+      table.string('name', 255).notNullable().index();
     })
     .createTable('books_categories', (table) => {
       table.increments('id').primary();
