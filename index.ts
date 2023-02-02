@@ -7,9 +7,9 @@ const server = fastify()
 
 const s3Client = s3.createClient({
   s3Options: {
-    accessKeyId: "79DL49GLAYEZHOHO3NQ2",
-    secretAccessKey: "zrDcCBCqn3UasF1IXMKee6nXjd9fkz3MIGrOFYsP",
-    endpoint: "https://s3.wasabisys.com"
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    endpoint: process.env.S3_ENDPOINT
   }
 })
 
