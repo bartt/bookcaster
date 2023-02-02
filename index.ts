@@ -1,6 +1,8 @@
+import * as dotenv from 'dotenv';
+dotenv.config()
+
 import fastify from 'fastify';
 import s3 from 's3';
-
 import { Author, Book, Category, CoverImage, knex, config, MediaFile } from './models/index.js';
 
 const server = fastify()
