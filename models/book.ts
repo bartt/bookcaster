@@ -1,29 +1,76 @@
-import Model from "./bookshelf.js";
-import Author from "./author.js";
-import Category from "./category.js";
-import File from "./file.js";
-import Image from "./image.js";
+import { BaseModel as Model, ModelObject } from "./objection.js";
+import { Author } from "./author.js";
+import { Category } from "./category.js";
+import { CoverImage } from "./cover-image.js";
+import { MediaFile } from "./media-file.js";
 
-export class Book extends Model<Book> {
-    get tableName() {return 'books';}
+export class Book extends Model {
+  id!: number
+  name!: string
+  authors?: Author[]
+  categories?: Category[]
+  files?: MediaFile[]
+  image?: CoverImage
+   
+  static tableName = 'books';
 
-    categories() {
-      return this.belongsToMany(Category, 'books_categories')
+  static relationMappings = () => ({
+    authors: {
+      relation: Model.ManyToManyRelation,
+      modelClass: Author,
+      join: {
+        from: 'books.id',
+        through: {
+          from: 'books_authors.bookId',
+          to: 'books_authors.authorId'
+        },
+        to: 'authors.id'
+      }
+    },
+    categories: {
+      relation: Model.ManyToManyRelation,
+      modelClass: Category,
+      join: {
+        from: 'books.id',
+        through: {
+          from: 'books_categories.bookId',
+          to: 'books_categories.categoryId'
+        },
+        to: 'categories.id'
+      }
     }
+  });
 
-    authors() {
-      return this.belongsToMany(Author, 'books_authors')
+  static jsonSchema = {
+    type: 'object',
+    required: ['name'],
+    properties: {
+      id: { type: 'integer' },
+      name: { type: 'string', maxLength: 255 },
+      description: { type: 'string' },
+      image: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', maxLength: 255 },
+          size: { type: 'integer' },
+          height: { type: 'integer' },
+          width: { type: 'integer' }
+        }
+      },
+      files: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', maxLength: 255 },
+            size: { type: 'integer' },
+            duration: { type: 'number' },
+          }
+        }
+      }
     }
-
-    files() {
-      return this.hasMany(File)
-    }
-
-    image() {
-      return this.hasOne(Image, 'id')
-    }
-
-    static dependents = ['files', 'image']
   }
-  
-export default Book    
+}
+
+export type BookShape = ModelObject<Book>;
+export default Book;

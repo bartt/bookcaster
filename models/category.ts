@@ -1,12 +1,26 @@
-import Model from "./bookshelf.js"
-import Book from "./book.js";
+import { BaseModel as Model, ModelObject } from "./objection.js"
+import { Book } from "./book.js";
 
-export class Category extends Model<Category> {
-  get tableName() { return 'categories'; }
+export class Category extends Model {
+  id!: number
+  name!: string
 
-  books() {
-    return this.belongsToMany(Book, 'books_categories')
-  }
+  static tableName = 'categories';
+
+  static relationMappings = () => ({
+    books: {
+      relation: Model.ManyToManyRelation,
+      modelClass: Book,
+      join: {
+        from: 'categories.id',
+        through: {
+          from: 'books_categories.categoryId',
+          to: 'books_categories.bookId'
+        },
+        to: 'books.id'
+      }
+    }
+  })
 }
 
-export default Category;
+export type CategoryShape = ModelObject<Category>;

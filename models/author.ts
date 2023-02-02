@@ -1,12 +1,27 @@
-import Model from "./bookshelf.js"
-import Book from "./book.js"
+import { BaseModel as Model, ModelObject } from "./objection.js"
+import { Book } from "./book.js"
 
-export class Author extends Model<Author> {
-  get tableName() { return 'authors'; }
+export class Author extends Model {
+  id!: number
+  name!: string
+  books?: Book[]
+  
+  static tableName = 'authors';
 
-  books() {
-    return this.belongsToMany(Book, 'books_authors')
-  }
+  static relationMappings = () => ({
+    books: {
+      relation: Model.ManyToManyRelation,
+      modelClass: Book,
+      join: {
+        from: 'authors.id',
+        through: {
+          from: 'books_authors.authorId',
+          to: 'books_authors.bookId'
+        },
+        to: 'books.id'
+      }
+    }
+  });
 }
 
-export default Author
+export type AuthorShape = ModelObject<Author>

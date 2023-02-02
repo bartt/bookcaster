@@ -1,48 +1,38 @@
-import { table } from 'console';
 import { knex, Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<any> {
   return knex.schema
     .createTable('books', (table) => {
-      table.increments('id');
-      table.integer('image_id').references('id').inTable('images'); // .notNullable();
+      table.increments('id').primary();
       table.string('name', 255).notNullable();
       table.string('title', 255);
       table.text('description');
+      table.json('files');
+      table.json('image');
     })
     .createTable('authors', (table) => {
-      table.increments('id');
+      table.increments('id').primary();
       table.string('name', 255).notNullable();
     })
     .createTable('books_authors', (table) => {
-      table.increments('id');
-      table.integer('book_id').references('id').inTable('books').notNullable();
-      table.integer('author_id').references('id').inTable('authors').notNullable();
-      table.unique(['book_id', 'author_id'])
+      table.increments('id').primary();
+      table.integer('bookId').unsigned().index()
+      table.foreign('bookId').references('books.id').withKeyName('fk_books').onDelete('CASCADE');
+      table.integer('authorId').unsigned().index()
+      table.foreign('authorId').references('authors.id').withKeyName('fk_authors').onDelete('CASCADE');
+      table.unique(['bookId', 'authorId'])
     })
     .createTable('categories', (table) => {
-      table.increments('id');
+      table.increments('id').primary();
       table.string('name', 255).notNullable();
     })
     .createTable('books_categories', (table) => {
-      table.increments('id');
-      table.integer('book_id').references('id').inTable('books').notNullable();
-      table.integer('category_id').references('id').inTable('categories').notNullable();
-      table.unique(['book_id', 'category_id'])
-    })
-    .createTable('files', (table) => {
-      table.increments('id');
-      table.integer('book_id').references('id').inTable('books').notNullable();
-      table.string('name', 255).notNullable();
-      table.integer('size').notNullable();
-      table.decimal('duration').notNullable();
-    })
-    .createTable('images', (table) => {
-      table.increments('id');
-      table.string('name', 255).notNullable();
-      table.integer('size').notNullable();
-      table.integer('height').notNullable();
-      table.integer('width').notNullable();
+      table.increments('id').primary();
+      table.integer('bookId').unsigned().index()
+      table.foreign('bookId').references('books.id').withKeyName('fk_books').onDelete('CASCADE');
+      table.integer('categoryId').unsigned().index()
+      table.foreign('categoryId').references('categories.id').withKeyName('fk_categories').onDelete('CASCADE');
+      table.unique(['bookId', 'categoryId'])
     })
 }
 
@@ -53,6 +43,4 @@ export async function down(knex: Knex): Promise<any> {
     .dropTable('books_authors')
     .dropTable('categories')
     .dropTable('books_categories')
-    .dropTable('files')
-    .dropTable('images')
 }
