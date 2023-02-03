@@ -7,11 +7,13 @@ import { MediaFile } from "./media-file.js";
 export class Book extends Model {
   id!: number
   name!: string
+  title?: string
+  description?: string
   authors?: Author[]
   categories?: Category[]
   files?: MediaFile[]
   image?: CoverImage
-   
+
   static tableName = 'books';
 
   static relationMappings = () => ({
@@ -47,6 +49,7 @@ export class Book extends Model {
     properties: {
       id: { type: 'integer' },
       name: { type: 'string', maxLength: 255 },
+      title: { type: 'string', maxLength: 255 },
       description: { type: 'string' },
       image: {
         type: 'object',
@@ -69,6 +72,16 @@ export class Book extends Model {
         }
       }
     }
+  }
+
+  static toTitle(name: string): string {
+    return name
+      .split('-')
+      .map((value) => 
+        value.length > 0 
+          ? value.charAt(0).toUpperCase() + value.slice(1) 
+          : value)
+      .join(' ')
   }
 }
 
