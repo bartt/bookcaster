@@ -11,7 +11,6 @@ export class Book extends Model {
   description?: string
   authors?: Author[]
   categories?: Category[]
-  files?: MediaFile[]
   image?: CoverImage
 
   static tableName = 'books';
@@ -40,39 +39,16 @@ export class Book extends Model {
         },
         to: 'categories.id'
       }
-    }
-  });
-
-  static jsonSchema = {
-    type: 'object',
-    required: ['name'],
-    properties: {
-      id: { type: 'integer' },
-      name: { type: 'string', maxLength: 255 },
-      title: { type: 'string', maxLength: 255 },
-      description: { type: 'string' },
-      image: {
-        type: 'object',
-        properties: {
-          name: { type: 'string', maxLength: 255 },
-          size: { type: 'integer' },
-          height: { type: 'integer' },
-          width: { type: 'integer' }
-        }
-      },
-      files: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            name: { type: 'string', maxLength: 255 },
-            size: { type: 'integer' },
-            duration: { type: 'number' },
-          }
-        }
+    },
+    files: {
+      relation: Model.HasManyRelation,
+      modelClass: MediaFile,
+      join: {
+        from: 'books.id',
+        to: 'files.bookId'
       }
     }
-  }
+  });
 
   static toTitle(name: string): string {
     return name

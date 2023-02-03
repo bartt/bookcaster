@@ -1,15 +1,25 @@
-export class MediaFile {
-    name!: string;
-    size!: number;
-    duration!: number;
+import { BaseModel as Model, ModelObject } from "./objection.js"
+import { Book } from "./book.js"
+import { JSONSchema, RelationMappings, RelationMappingsThunk } from "objection";
+export class MediaFile extends Model {
+  id!: number;
+  name!: string;
+  size!: number;
+  duration!: number;
+  book!: Book;
 
-    constructor(name: string, size: number, duration: number) {
-        this.name = name;
-        this.size = size;
-        this.duration = duration;
-    }
+  static tableName = 'files';
 
-    static fromJson(json: any): MediaFile {
-        return new MediaFile(json.name, json.size, json.duration);
+  static relationMappings = () => ({
+    book: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: Book,
+      join: {
+        from: 'files.bookId',
+        to: 'books.id'
+      }
     }
+  })
 }
+
+export type MediaFileShape = ModelObject<MediaFile>

@@ -7,7 +7,6 @@ export async function up(knex: Knex): Promise<any> {
       table.string('name', 255).notNullable().index();
       table.string('title', 255);
       table.text('description');
-      table.json('files');
       table.json('image');
     })
     .createTable('authors', (table) => {
@@ -34,6 +33,15 @@ export async function up(knex: Knex): Promise<any> {
       table.foreign('categoryId').references('categories.id').withKeyName('fk_categories').onDelete('CASCADE');
       table.unique(['bookId', 'categoryId'])
     })
+    .createTable('files', (table) => {
+      table.increments('id').primary();
+      table.integer('bookId').unsigned().index()
+      table.foreign('bookId').references('books.id').withKeyName('fk_books');
+      table.string('name', 500).notNullable().index();
+      table.integer('size').notNullable();
+      table.float('duration').notNullable();
+      table.unique(['bookId', 'name'])
+    })
 }
 
 export async function down(knex: Knex): Promise<any> {
@@ -43,4 +51,5 @@ export async function down(knex: Knex): Promise<any> {
     .dropTable('books_authors')
     .dropTable('categories')
     .dropTable('books_categories')
+    .dropTable('files')
 }
