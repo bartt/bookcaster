@@ -64,7 +64,8 @@ export class Book extends Model {
           name: { type: 'string', maxLength: 255 },
           size: { type: 'integer' },
           height: { type: 'integer' },
-          width: { type: 'integer' }
+          width: { type: 'integer' },
+          dataUri: { type: ['string', 'null'] }
         }
       }
     }
@@ -73,9 +74,9 @@ export class Book extends Model {
   static toTitle(name: string): string {
     return name
       .split('-')
-      .map((value) => 
-        value.length > 0 
-          ? value.charAt(0).toUpperCase() + value.slice(1) 
+      .map((value) =>
+        value.length > 0
+          ? value.charAt(0).toUpperCase() + value.slice(1)
           : value)
       .join(' ')
   }

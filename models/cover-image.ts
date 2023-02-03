@@ -3,6 +3,7 @@ export class CoverImage {
     size!: number;
     height!: number;
     width!: number;
+    dataUri?: string
 
     constructor(name: string, size: number, height: number, width: number) {
         this.name = name;
@@ -12,6 +13,10 @@ export class CoverImage {
     }
 
     static fromJson(json: any): CoverImage {
-        return new CoverImage(json.name, json.size, json.height, json.width);
+        const coverImage = new CoverImage(json.name, json.size, json.height, json.width);
+        if (json.dataUri) {
+            coverImage.dataUri = json.dataUri
+        }
+        return coverImage
     } 
 }
