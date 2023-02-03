@@ -10,4 +10,8 @@ export class CoverImage {
         this.height = height;
         this.width = width;
     }
+
+    static fromJson(json: any): CoverImage {
+        return new CoverImage(json.name, json.size, json.height, json.width);
+    } 
 }
