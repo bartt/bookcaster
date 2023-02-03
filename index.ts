@@ -2,12 +2,22 @@ import * as dotenv from 'dotenv';
 dotenv.config()
 
 import fastify from 'fastify';
+import { fastifyView } from '@fastify/view'
+import handlebars from 'handlebars'
 import sizeOf from 'image-size';
 import ImageDataURI from 'image-data-uri';
 import { S3Client, ListObjectsCommand, ListObjectsCommandOutput, GetObjectCommand } from "@aws-sdk/client-s3";
 import { Author, Book, Category, CoverImage, knex, config, MediaFile } from './models/index.js';
 
-const server = fastify()
+const server = fastify({
+  logger: true
+}).register(fastifyView, {
+  engine: {
+    handlebars: handlebars
+  },
+  layout: "views/layouts/main.handlebars",
+  viewExt: "handlebars",
+})
 
 const s3Client = new S3Client({
   credentials: {
@@ -114,6 +124,14 @@ server.get('/ping', async (request, reply) => {
   return actions.join('\n');
 })
 
+server.get('/:bookName', async (request, reply)=> {
+  console.log(request.params)
+  const book = await Book.query().findOne({
+    name: request.params.bookName
+  })
+  return reply.view('views/book', { book: book })
+});
+
 server.listen({ port: 8080 }, async (err, address) => {
   if (err) {
     console.error(err)
@@ -121,7 +139,7 @@ server.listen({ port: 8080 }, async (err, address) => {
   }
 
   // Setup the database
-  await knex.migrate.rollback({}, true)
+  // await knex.migrate.rollback({}, true)
   await knex.migrate.latest(config.migrations)
 
   console.log(`Server listening at ${address}`)
