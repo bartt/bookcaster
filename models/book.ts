@@ -50,6 +50,26 @@ export class Book extends Model {
     }
   });
 
+  static jsonSchema = {
+    type: 'object',
+    required: ['name'],
+    properties: {
+      id: { type: 'integer' },
+      name: { type: 'string', maxLength: 255 },
+      title: { type: 'string', maxLength: 255 },
+      description: { type: 'string' },
+      image: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', maxLength: 255 },
+          size: { type: 'integer' },
+          height: { type: 'integer' },
+          width: { type: 'integer' }
+        }
+      }
+    }
+  }
+
   static toTitle(name: string): string {
     return name
       .split('-')

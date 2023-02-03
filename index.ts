@@ -59,13 +59,16 @@ server.get('/ping', async (request, reply) => {
             case "mp3":
             case "m4a":
               // Handle audio file
-              await Book.relatedQuery('files').for(Book.query().findOne({
-                name: bookName
-              })).insert({
-                name: fileName,
-                size: obj.Size as number,
-                duration: 0
-              }).onConflict(['name', 'bookId'])
+              await Book.relatedQuery('files')
+                .for(Book.query()
+                  .findOne({
+                    name: bookName
+                  })
+                ).insert({
+                  name: fileName,
+                  size: obj.Size as number,
+                  duration: 0
+                }).onConflict(['name', 'bookId'])
                 .merge();
               actions.push(`Inserted/updated ${fileName}.`);
               break;
@@ -79,7 +82,7 @@ server.get('/ping', async (request, reply) => {
                 .patch({
                   image: {
                     name: fileName,
-                    size: 0,
+                    size: obj.Size as number,
                     height: 0,
                     width: 0
                   }
