@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config()
 
-import fastify from 'fastify';
+import fastify, { RequestGenericInterface } from 'fastify';
 import { fastifyView } from '@fastify/view'
 import handlebars from 'handlebars'
 import sizeOf from 'image-size';
@@ -59,11 +59,17 @@ const mediaTagMaxSize = 666 * 1024;
 // Minimum description length to extract from media files.
 const minimumDescriptionLenth = 120;
 
-server.get('/sync', async (request, reply) => {
+interface SyncRequestGeneric extends RequestGenericInterface {
+  Querystring: {
+    addOnly: boolean
+  }
+}
+
+server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
   const actions: string[] = []
   let isTruncated = true
   let marker: string | undefined
-  const addOnly = !!request.query.addOnly
+  const addOnly = request.query.addOnly
   while (isTruncated) {
     const listResponse: ListObjectsCommandOutput = await s3Client.send(new ListObjectsCommand({
       ...s3BaseConfig,
@@ -286,18 +292,45 @@ server.get('/sync', async (request, reply) => {
   return actions.join('\n');
 })
 
-server.get('/:bookName', async (request, reply) => {
+
+interface BookFeedRequestGeneric extends RequestGenericInterface {
+  Params: {
+    bookName: string,
+    ext: string
+  }
+}
+
+server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, reply) => {
+  let ext = request.params.ext.split('.').pop()
   const book = await Book.query().findOne({
     name: request.params.bookName
   }).withGraphFetched('[files, authors, categories]')
-  console.log(book)
-  return reply.view('views/books', {
-    books: [{
-      ...book,
-      duration: (book?.files || []).reduce((acc, file) => acc + file.duration, 0)
-    }]
-  })
-});
+  if (!book) {
+    return `Could not find ${request.params.bookName}!`
+  }
+  switch (ext) {
+    case '':
+      return reply.view('views/books', {
+        books: [{
+          ...book,
+          duration: (book?.files || []).reduce((acc, file) => acc + file.duration, 0)
+        }]
+      })
+      break
+
+    case 'm3u':
+      return `${book.name}.${ext}`
+      break;
+
+    case 'rss':
+      return `${book.name}.${ext}`
+      break;
+
+    default:
+      return `Unknown ${ext} for ${book.name}`
+      break;
+  }
+})
 
 server.get('/', async (request, reply) => {
   const books = await Book.query().withGraphFetched('[files, authors, categories]');
@@ -310,7 +343,13 @@ server.get('/', async (request, reply) => {
   return reply.view('views/books', { books: booksSummed })
 })
 
-server.get('/author/:authorName', async (request, reply) => {
+interface AuthorRequestGeneric extends RequestGenericInterface {
+  Params: {
+    authorName: string
+  }
+}
+
+server.get<AuthorRequestGeneric>('/author/:authorName', async (request, reply) => {
   const books = await Author.relatedQuery('books').for(Author.query().findOne({
     name: request.params.authorName
   })).withGraphFetched('[files, authors, categories]')
