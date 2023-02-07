@@ -35,12 +35,9 @@
       .catalog {
         display: -webkit-flex;
         display: flex;
-        -webkit-flex-direction: row;
         flex-direction: row;
-        -webkit-flex-wrap: wrap;
         flex-wrap: wrap;
-        -webkit-align-items: flex-end;
-        align-items: flex-end;
+        align-items: baseline;
         justify-content: center;
         padding: 0;
       }
@@ -48,9 +45,13 @@
         list-style: none;
         position: relative;
         width: 240px;
-        height: 400px;
-        margin: 10px;
+        margin: 10px 10px 60px 10px;
+        text-align: center;
       }
+    .cover {
+        max-width: 240px;
+        max-height: 360px;
+    }
       .feed {
         position: absolute;
         bottom: 80px;
@@ -64,8 +65,8 @@
       }
       .play {
         position: absolute;
-        bottom: 10px;
-        left: 10px;
+        bottom: 20px;
+        left: 20px;
         color: rgba(0, 0, 0, .4);
       }
       .play .fa-play {
@@ -76,8 +77,8 @@
         color: rgb(0, 0, 0);
       }
       .duration {
-        bottom: 11px;
-        right: 10px;
+        bottom: 21px;
+        right: 20px;
         position: absolute;
         font-weight: bold;
         color: rgb(255, 255, 255);

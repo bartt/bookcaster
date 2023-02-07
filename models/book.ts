@@ -12,6 +12,7 @@ export class Book extends Model {
   authors?: Author[]
   categories?: Category[]
   image?: CoverImage
+  files?: MediaFile[]
 
   static tableName = 'books';
 

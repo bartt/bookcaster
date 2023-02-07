@@ -1,0 +1,26 @@
+<ul class="catalog">
+{{#each books}}
+    <li class="book">
+        <a href="/{{name}}" title="{{title}}">
+    {{#with image}}
+        <img class="cover" src="{{dataUri}}" width="{{width}}" height="{{height}}"/>
+    {{/with}}
+    <a class="feed" title="Listen to {{title}} by {{#each authors}}{{name}}{{/each}}">
+        <span class="fa-stack fa-lg">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-rss fa-inverse fa-stack-1x"></i>
+        </span>
+    </a>
+    <a class="play">
+        <span class="fa-stack">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-play fa-inverse fa-stack-1x"></i>
+        <span>
+    </a>
+    <div class="duration">
+        {{formatDuration duration}}
+    </div>
+    </a>
+    </li>
+{{/each}}
+</ul>

@@ -6,8 +6,12 @@ import { fastifyView } from '@fastify/view'
 import handlebars from 'handlebars'
 import sizeOf from 'image-size';
 import ImageDataURI from 'image-data-uri';
+import { parseBuffer } from 'music-metadata';
+import { inspect } from 'node:util';
 import { S3Client, ListObjectsCommand, ListObjectsCommandOutput, GetObjectCommand } from "@aws-sdk/client-s3";
 import { Author, Book, Category, CoverImage, knex, config, MediaFile } from './models/index.js';
+import { exit } from 'node:process';
+import { raw } from 'objection';
 
 const server = fastify({
   logger: true
@@ -17,6 +21,23 @@ const server = fastify({
   },
   layout: "views/layouts/main.handlebars",
   viewExt: "handlebars",
+})
+
+handlebars.registerHelper('formatDuration', (durationSec: number) => {
+  const MINUTE = 60
+  const HOUR = 60 * MINUTE
+  const duration = []
+  const hours = durationSec / HOUR
+  if (hours > 0) {
+    duration.push(Math.floor(hours))
+    durationSec = durationSec % HOUR
+  }
+  const minutes = durationSec / 60
+  if (minutes > 0) {
+    duration.push(Math.floor(minutes).toString().padStart(2, '0'))
+    durationSec = durationSec % 60
+  }
+  return duration.join(':')
 })
 
 const s3Client = new S3Client({
@@ -32,10 +53,17 @@ const s3BaseConfig = {
   Bucket: "icloud",
 }
 
-server.get('/ping', async (request, reply) => {
+// Maximum size to get all embeded media tags from a MP3/M4A media file. 
+const mediaTagMaxSize = 666 * 1024;
+
+// Minimum description length to extract from media files.
+const minimumDescriptionLenth = 120;
+
+server.get('/sync', async (request, reply) => {
   const actions: string[] = []
   let isTruncated = true
   let marker: string | undefined
+  const addOnly = !!request.query.addOnly
   while (isTruncated) {
     const listResponse: ListObjectsCommandOutput = await s3Client.send(new ListObjectsCommand({
       ...s3BaseConfig,
@@ -44,6 +72,7 @@ server.get('/ping', async (request, reply) => {
     }))
     for (const obj of listResponse.Contents || []) {
       marker = obj.Key
+      console.log(marker)
       const parts: string[] = obj.Key?.split('/') || []
       if (obj.Size == 0) {
         // Skip /audiobooks top level directory.
@@ -54,14 +83,14 @@ server.get('/ping', async (request, reply) => {
         const name = parts[parts.length - 2]
         // Skip books that already exist.
         if (await Book.query().findOne({ name: name })) {
-          actions.push(`Skipping book ${name}.`)
+          reply.raw.write(`Skipped recreating known book ${name}.\n`)
           continue
         }
         const book = await Book.query().insert({
           name: name,
           title: Book.toTitle(name)
         })
-        actions.push(`Inserted book ${book.name}.`)
+        reply.raw.write(`Inserted book ${book.name}.\n`)
       } else {
         // Skip image/audio files in the /audiobooks top level directory.
         if (parts.length <= 2) {
@@ -70,22 +99,158 @@ server.get('/ping', async (request, reply) => {
         const ext: string = obj.Key?.split('.')?.pop()?.toLowerCase() || ''
         const fileName = parts.pop() || ""
         const bookName = parts.pop() || ""
+        const book = await Book.query().findOne({ name: bookName })
+        if (!book) {
+          reply.raw.write(`Could not find book ${bookName}!\n`)
+          continue
+        }
+        if (book.image && addOnly) {
+          reply.raw.write(`In add only mode; skipping file ${fileName}.\n`)
+          continue
+        }
         switch (ext) {
-          case "mp3":
-          case "m4a":
+          case 'mp3':
+          case 'm4a':
             // Handle audio file
-            await Book.relatedQuery('files')
-              .for(Book.query()
-                .findOne({
-                  name: bookName
-                })
-              ).insert({
+            // See if the audio file is already in the database.
+            let file = await Book.relatedQuery('files').for(book.id).where({
+              name: fileName,
+            }).whereNot({
+              duration: 0
+            }).first()
+            if (file) {
+              // Skip the audio file when the size hasn't changed. 
+              if ((file as MediaFile).size == obj.Size) {
+                reply.raw.write(`Skipped known ${fileName} with duration ${(file as MediaFile).duration}.\n`);
+                continue
+              }
+            }
+
+            // File size has changed or this is a new file.
+            const fileSize = obj.Size || 0
+            const maxBytes =
+              ext == 'm4a'
+                ? Math.min(fileSize, Math.max(fileSize * .1, mediaTagMaxSize))
+                : Math.min(fileSize, mediaTagMaxSize);
+            const mimeType = ext == 'm4a' ? 'audio/x-m4a' : 'audio/mpeg'
+            const fileResponse = await s3Client.send(new GetObjectCommand({
+              ...s3BaseConfig,
+              Key: obj.Key,
+              Range: `bytes=0-${maxBytes}`
+            }))
+            const fileBuffer = Buffer.from(await fileResponse.Body?.transformToByteArray() || []);
+            const metadata = await parseBuffer(fileBuffer, mimeType).then(async (metadata) => {
+              // Must read the entire file to determine the duration when format reports `numberOfSamples`.
+              if (metadata.format.numberOfSamples && obj.Size && obj.Size > maxBytes) {
+                const remainderResponse = await s3Client.send(new GetObjectCommand({
+                  ...s3BaseConfig,
+                  Key: obj.Key,
+                  Range: `bytes=${maxBytes}-${obj.Size}`
+                }))
+                const remainderBuffer = Buffer.from(await remainderResponse.Body?.transformToByteArray() || [])
+                return await parseBuffer(Buffer.concat([fileBuffer, remainderBuffer]), mimeType)
+              }
+              return metadata
+            }).catch((err) => {
+              console.log(`Failed to extract metadata from ${fileName} : ${err}.`)
+              reply.raw.write(`Failed to extract metadata from ${fileName} : ${err}.\n`)
+            })
+
+            // Check if it is a new file.
+            file = await Book.relatedQuery('files')
+              .for(book.id)
+              .where({
+                name: fileName,
+              }).first()
+            if (file) {
+              await file.$query().update({
                 name: fileName,
                 size: obj.Size as number,
-                duration: 0
-              }).onConflict(['name', 'bookId'])
-              .merge();
-            actions.push(`Inserted/updated ${fileName}.`);
+                duration: metadata?.format.duration || 0
+              })
+              reply.raw.write(`Updated ${fileName}.\n`);
+            } else {
+              await Book.relatedQuery('files')
+                .for(book.id)
+                .insert({
+                  name: fileName,
+                  size: obj.Size as number,
+                  duration: metadata?.format.duration || 0
+                })
+              reply.raw.write(`Inserted ${fileName}.\n`);
+            }
+
+            // Authors
+            const authors = metadata?.common.artists?.map((artist) => Author.fromJson({ name: artist })) || []
+            for (const author of authors) {
+              const record = await Book.relatedQuery('authors')
+                .for(book.id)
+                .where({
+                  name: author.name
+                }).first()
+              if (record) {
+                console.log(`Skipping known author ${author.name} of ${bookName}`)
+                continue
+              }
+              const dbAuthor = await Author.query().findOne({
+                name: author.name
+              }).first()
+              if (dbAuthor) {
+                await Book.relatedQuery('authors')
+                  .for(book.id)
+                  .relate(dbAuthor)
+                console.log(`Linked author ${dbAuthor.name} to ${bookName}.`)
+                continue
+              }
+              await Book.relatedQuery('authors')
+                .for(book.id)
+                .insert(author)
+              console.log(`Inserted author ${author.name} of ${bookName}.`)
+            }
+
+            // Categories
+            const categories = metadata?.common.genre?.map((genre) => Category.fromJson({ name: genre })) || []
+            for (const category of categories) {
+              const record = await Book.relatedQuery('categories')
+                .for(book.id)
+                .where({
+                  name: category.name
+                }).first()
+              if (record) {
+                console.log(`Skipping known category ${category.name} of ${bookName}`)
+                continue
+              }
+              const dbCategory = await Category.query().findOne({
+                name: category.name
+              }).first()
+              if (dbCategory) {
+                await Book.relatedQuery('categories')
+                  .for(book.id)
+                  .relate(dbCategory)
+                console.log(`Linked category ${dbCategory.name} to ${bookName}.`)
+                continue
+              }
+              await Book.relatedQuery('categories')
+                .for(book.id)
+                .insert(category)
+              console.log(`Inserted category ${Category.name} to ${bookName}.`)
+            }
+
+            // Description 
+            const description = metadata?.common.comment?.join(' ') || ''
+            if (description.length > minimumDescriptionLenth) {
+              await book.$query().patch({
+                description: description
+              })
+            }
+
+            // Update the book's title when the title in the file is longer
+            const title = metadata?.common.album
+            if (title && book.title?.length < title.length) {
+              await book.$query().patch({
+                title: title
+              })
+            }
             break;
           case "jpg":
           case "jpeg":
@@ -97,10 +262,7 @@ server.get('/ping', async (request, reply) => {
             const imageBuffer = Buffer.from(await imageResponse.Body?.transformToByteArray() || [])
             const imageSize = sizeOf(imageBuffer)
             const imageDataUri = ImageDataURI.encode(imageBuffer, imageSize.type)
-            const updatedRowCount = await Book.query()
-              .findOne({
-                name: bookName
-              })
+            const updatedRowCount = await book.$query()
               .patch({
                 image: {
                   name: fileName,
@@ -110,7 +272,7 @@ server.get('/ping', async (request, reply) => {
                   dataUri: imageDataUri
                 }
               });
-            actions.push(`Updated ${updatedRowCount} book(s) with image ${fileName}.`);
+            reply.raw.write(`Updated ${updatedRowCount} book(s) with image ${fileName}.\n`);
             break;
           default:
             // Ignore
@@ -124,13 +286,42 @@ server.get('/ping', async (request, reply) => {
   return actions.join('\n');
 })
 
-server.get('/:bookName', async (request, reply)=> {
-  console.log(request.params)
+server.get('/:bookName', async (request, reply) => {
   const book = await Book.query().findOne({
     name: request.params.bookName
+  }).withGraphFetched('[files, authors, categories]')
+  console.log(book)
+  return reply.view('views/books', {
+    books: [{
+      ...book,
+      duration: (book?.files || []).reduce((acc, file) => acc + file.duration, 0)
+    }]
   })
-  return reply.view('views/book', { book: book })
 });
+
+server.get('/', async (request, reply) => {
+  const books = await Book.query().withGraphFetched('[files, authors, categories]');
+  const booksSummed = books.map((book) => {
+    return {
+      ...book,
+      duration: (book.files || []).reduce((acc, file) => acc + file.duration, 0)
+    }
+  })
+  return reply.view('views/books', { books: booksSummed })
+})
+
+server.get('/author/:authorName', async (request, reply) => {
+  const books = await Author.relatedQuery('books').for(Author.query().findOne({
+    name: request.params.authorName
+  })).withGraphFetched('[files, authors, categories]')
+  const booksSummed = books.map((book) => {
+    return {
+      ...book,
+      duration: (book.files || []).reduce((acc, file) => acc + file.duration, 0)
+    }
+  })
+  return reply.view('views/books', { books: booksSummed })
+})
 
 server.listen({ port: 8080 }, async (err, address) => {
   if (err) {
