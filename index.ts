@@ -3,6 +3,7 @@ dotenv.config()
 
 import fastify, { RequestGenericInterface } from 'fastify';
 import { fastifyView } from '@fastify/view'
+import { fastifyBasicAuth } from '@fastify/basic-auth'
 import handlebars from 'handlebars'
 import sizeOf from 'image-size';
 import ImageDataURI from 'image-data-uri';
@@ -21,6 +22,20 @@ const server = fastify({
   },
   layout: "views/layouts/main.handlebars",
   viewExt: "handlebars",
+}).register(fastifyBasicAuth, {
+  validate: async function (username, password, request, reply) {
+    console.log(`${username}:${password}`)
+    if (username !== process.env.AUDIO_BOOKS_USER || password !== process.env.AUDIO_BOOKS_PASSWORD) {
+      return new Error('No books for you!')
+    }
+  },
+  authenticate: {
+    realm: "Protected Books"
+  }
+})
+
+server.after(() => {
+  server.addHook('onRequest', server.basicAuth)
 })
 
 handlebars.registerHelper('formatDuration', (durationSec: number) => {
@@ -64,6 +79,10 @@ interface SyncRequestGeneric extends RequestGenericInterface {
     addOnly: boolean
   }
 }
+
+server.get('/robots.txt', async (request, reply) => {
+  return "User-agent: *\nDisallow: /\n"
+})
 
 server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
   const actions: string[] = []
