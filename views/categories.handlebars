@@ -1,0 +1,12 @@
+<ul>
+    {{#each categories}}
+    <li>
+        <a href="/category/{{name}}">{{name}}</a>
+        <blockquote>
+            {{#each books}}
+            <a href="/{{name}}" title="{{title}}"><img src="{{image.dataUri}}" alt="{{title}} cover" height="90" width="60"></a>
+            {{/each}}
+        </blockquote>
+    </li>
+    {{/each}}
+</ul>

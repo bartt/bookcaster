@@ -343,6 +343,16 @@ server.get('/', async (request, reply) => {
   return reply.view('views/books', { books: booksSummed })
 })
 
+server.get('/authors', async (request, reply) => {
+  const authors = await Author.query().orderBy('name').withGraphFetched('[books]');
+  return reply.view('views/authors', { authors })
+})
+
+server.get('/categories', async (request, reply) => {
+  const categories = await Category.query().orderBy('name').withGraphFetched('[books]');
+  return reply.view('views/categories', { categories })
+})
+
 interface AuthorRequestGeneric extends RequestGenericInterface {
   Params: {
     authorName: string

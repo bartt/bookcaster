@@ -1,0 +1,12 @@
+<ul>
+    {{#each authors}}
+    <li>
+        <a href="/author/{{name}}">{{name}}</a>
+        <blockquote>
+            {{#each books}}
+                <a href="/{{name}}" title="{{title}}"><img src="{{image.dataUri}}" height="90" width="60" alt="{{title}} cover"></a>
+            {{/each}}
+        </blockquote>
+    </li>
+    {{/each}}
+</ul>
