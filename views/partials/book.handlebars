@@ -1,0 +1,22 @@
+<li class="book">
+  <a href="/{{name}}" title="{{title}}">
+    {{#with image}}
+    <img class="cover" src="{{dataUri}}" width="{{width}}" height="{{height}}" alt="{{title}} cover"/>
+    {{/with}}
+    <a class="feed" title="Listen to {{title}} by {{join authors ' & '}} in as a podcast" href="/{{name}}.rss">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-rss fa-inverse fa-stack-1x"></i>
+      </span>
+    </a>
+    <a class="play" title="Listen to {{title}} by {{join authors ' & '}} on a desktop" href="/{{name}}.m3u" >
+      <span class="fa-stack">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-play fa-inverse fa-stack-1x"></i>
+        <span>
+    </a>
+    <div class="duration">
+      {{formatDuration duration}}
+    </div>
+  </a>
+</li>
