@@ -1,0 +1,9 @@
+#EXTM3U
+
+{{#with book}}
+{{#each files}}
+#EXTINF:{{round duration}},{{../title}} - {{../author.name}} - Episode {{@index}}
+{{url}}
+
+{{/each}}
+{{/with}}

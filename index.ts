@@ -9,7 +9,7 @@ import sizeOf from 'image-size';
 import ImageDataURI from 'image-data-uri';
 import { parseBuffer } from 'music-metadata';
 import { inspect } from 'node:util';
-import { S3Client, ListObjectsCommand, ListObjectsCommandOutput, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, ListObjectsCommand, ListObjectsCommandOutput, GetObjectCommand, GetObjectCommandOutput } from "@aws-sdk/client-s3";
 import { Author, Book, Category, CoverImage, knex, config, MediaFile } from './models/index.js';
 import { exit } from 'node:process';
 import { raw } from 'objection';
@@ -22,9 +22,15 @@ const server = fastify({
   },
   layout: "views/layouts/main.handlebars",
   viewExt: "handlebars",
+}).register(fastifyView, {
+  engine: {
+    handlebars: handlebars
+  },
+  layout: "views/layouts/plain.handlebars",
+  viewExt: "handlebars",
+  propertyName: 'plain'
 }).register(fastifyBasicAuth, {
   validate: async function (username, password, request, reply) {
-    console.log(`${username}:${password}`)
     if (username !== process.env.AUDIO_BOOKS_USER || password !== process.env.AUDIO_BOOKS_PASSWORD) {
       return new Error('No books for you!')
     }
@@ -54,6 +60,8 @@ handlebars.registerHelper('formatDuration', (durationSec: number) => {
   }
   return duration.join(':')
 })
+
+handlebars.registerHelper('round', (durationSec: number) => Math.round(durationSec))
 
 const s3Client = new S3Client({
   credentials: {
@@ -271,7 +279,8 @@ server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
 
             // Update the book's title when the title in the file is longer
             const title = metadata?.common.album
-            if (title && book.title?.length < title.length) {
+            const bookTitleLength = book.title?.length || 0
+            if (title && bookTitleLength < title.length) {
               await book.$query().patch({
                 title: title
               })
@@ -338,7 +347,18 @@ server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, repl
       break
 
     case 'm3u':
-      return `${book.name}.${ext}`
+      return reply.type('audio/x-mpegurl').plain('views/m3u', {
+        book: {
+          ...book,
+          files: (book?.files || []).map((file) => {
+            return {
+              ...file,
+              url: `${request.protocol}://${process.env.AUDIO_BOOKS_USER}:${process.env.AUDIO_BOOKS_PASSWORD}@${request.hostname}/${book.name}/${file.name}`
+            }
+          }),
+          author: book.authors && book.authors[0]
+        }
+      })
       break;
 
     case 'rss':
@@ -348,6 +368,42 @@ server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, repl
     default:
       return `Unknown ${ext} for ${book.name}`
       break;
+  }
+})
+
+interface FileRequestGeneric extends RequestGenericInterface {
+  Params: {
+    bookName: string,
+    fileName: string
+  }
+}
+
+server.get<FileRequestGeneric>('/:bookName/:fileName', async (request, reply) => {
+  const rangeSize = 6 * 1024 * 1024
+  let rangeStart = 0
+  let contentSize = Number.MAX_VALUE
+  let isTypeSet = false
+  while (rangeStart < contentSize) {
+    const rangeEnd = Math.min(rangeStart + rangeSize, contentSize)
+    const fileResponse: GetObjectCommandOutput = await s3Client.send(new GetObjectCommand({
+      ...s3BaseConfig,
+      Key: `audiobooks/${request.params.bookName}/${request.params.fileName}`,
+      Range: `bytes=${rangeStart}-${rangeEnd}`
+    }))
+    if (fileResponse.ContentRange) {
+      contentSize = Number.parseInt(fileResponse.ContentRange.split('/').pop() || '') || contentSize
+      console.log(`contentSize: ${contentSize}, Range: ${rangeStart}-${rangeEnd}`)
+    }
+    if (fileResponse.ContentType && !isTypeSet) {
+      reply.raw.writeHead(200, { 
+        'Content-Type': fileResponse.ContentType,
+        'Content-Length': contentSize
+      })
+      isTypeSet = true
+    }
+    const buffer = Buffer.from(await fileResponse.Body?.transformToByteArray() || [])
+    reply.raw.write(buffer)
+    rangeStart = rangeEnd
   }
 })
 
@@ -364,7 +420,10 @@ server.get('/', async (request, reply) => {
 
 server.get('/authors', async (request, reply) => {
   const authors = await Author.query().orderBy('name').withGraphFetched('[books]');
-  return reply.view('views/authors', { authors })
+  return reply.view('views/authors', {
+    authors,
+    title: `Audiobooks by author`
+  })
 })
 
 server.get('/categories', async (request, reply) => {
@@ -379,16 +438,23 @@ interface AuthorRequestGeneric extends RequestGenericInterface {
 }
 
 server.get<AuthorRequestGeneric>('/author/:authorName', async (request, reply) => {
-  const books = await Author.relatedQuery('books').for(Author.query().findOne({
+  const author = await Author.query().findOne({
     name: request.params.authorName
-  })).withGraphFetched('[files, authors, categories]')
+  })
+  if (!author) {
+    return "error"
+  }
+  const books = await Author.relatedQuery('books').for(author.id).withGraphFetched('[files, authors, categories]')
   const booksSummed = books.map((book) => {
     return {
       ...book,
       duration: (book.files || []).reduce((acc, file) => acc + file.duration, 0)
     }
   })
-  return reply.view('views/books', { books: booksSummed })
+  return reply.view('views/books', {
+    books: booksSummed,
+    title: `Audiobooks by ${author.name}`
+  })
 })
 
 server.listen({ port: 8080 }, async (err, address) => {
