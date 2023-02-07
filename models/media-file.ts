@@ -6,6 +6,7 @@ export class MediaFile extends Model {
   name!: string;
   size!: number;
   duration!: number;
+  date!: Date;
   book!: Book;
 
   static tableName = 'files';

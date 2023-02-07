@@ -153,7 +153,7 @@ server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
             }).first()
             if (file) {
               // Skip the audio file when the size hasn't changed. 
-              if ((file as MediaFile).size == obj.Size) {
+              if (file.size == obj.Size) {
                 reply.raw.write(`Skipped known ${fileName} with duration ${(file as MediaFile).duration}.\n`);
                 continue
               }
@@ -199,7 +199,8 @@ server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
               await file.$query().update({
                 name: fileName,
                 size: obj.Size as number,
-                duration: metadata?.format.duration || 0
+                duration: metadata?.format.duration || 0,
+                date: fileResponse.LastModified || new Date()
               })
               reply.raw.write(`Updated ${fileName}.\n`);
             } else {
@@ -208,7 +209,8 @@ server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
                 .insert({
                   name: fileName,
                   size: obj.Size as number,
-                  duration: metadata?.format.duration || 0
+                  duration: metadata?.format.duration || 0,
+                  date: fileResponse.LastModified || new Date()
                 })
               reply.raw.write(`Inserted ${fileName}.\n`);
             }
@@ -392,7 +394,6 @@ server.get<FileRequestGeneric>('/:bookName/:fileName', async (request, reply) =>
     }))
     if (fileResponse.ContentRange) {
       contentSize = Number.parseInt(fileResponse.ContentRange.split('/').pop() || '') || contentSize
-      console.log(`contentSize: ${contentSize}, Range: ${rangeStart}-${rangeEnd}`)
     }
     if (fileResponse.ContentType && !isTypeSet) {
       reply.raw.writeHead(200, { 
