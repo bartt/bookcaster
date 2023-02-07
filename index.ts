@@ -27,6 +27,11 @@ const server = fastify({
     handlebars: handlebars
   },
   layout: "views/layouts/plain.handlebars",
+  partials: {
+    header: "partials/header.handlebars",
+    footer: "partials/footer.handlebars",
+    book: "partials/book.handlebars",
+  },
   viewExt: "handlebars",
   propertyName: 'plain'
 }).register(fastifyBasicAuth, {
@@ -61,7 +66,11 @@ handlebars.registerHelper('formatDuration', (durationSec: number) => {
   return duration.join(':')
 })
 
-handlebars.registerHelper('round', (durationSec: number) => Math.round(durationSec))
+handlebars.registerHelper('round', (durationSec: number):number => Math.round(durationSec))
+
+handlebars.registerHelper('join', (items: Array, separator: string = ', '):string => items.join(separator))
+
+handlebars.registerHelper('toUTCString', (date: Date): string => date.toUTCString())
 
 const s3Client = new S3Client({
   credentials: {
