@@ -27,6 +27,7 @@
     "dotenv": "^16.0.3",
     "fastify": "^4.12.0",
     "handlebars": "^4.7.7",
+    "html-minifier": "^4.0.0",
     "image-data-uri": "^2.0.1",
     "image-size": "^1.0.2",
     "knex": "^2.4.2",

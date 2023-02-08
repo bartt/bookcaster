@@ -9,11 +9,12 @@ import handlebars from 'handlebars'
 import sizeOf from 'image-size';
 import ImageDataURI from 'image-data-uri';
 import { parseBuffer } from 'music-metadata';
-import { inspect } from 'node:util';
 import { S3Client, ListObjectsCommand, ListObjectsCommandOutput, GetObjectCommand, GetObjectCommandOutput } from "@aws-sdk/client-s3";
-import { Author, Book, Category, CoverImage, knex, config, MediaFile } from './models/index.js';
+import minifier from 'html-minifier'
+import { inspect } from 'node:util';
 import { cwd } from 'node:process';
 import { join } from 'node:path'
+import { Author, Book, Category, CoverImage, knex, config, MediaFile } from './models/index.js';
 
 const server = fastify({
   logger: true
@@ -31,6 +32,15 @@ const server = fastify({
       footer: "views/partials/footer.handlebars",
       authors: "views/partials/authors.handlebars",
       book: "views/partials/book.handlebars",
+    },
+    useHtmlMinifier: minifier,
+    htmlMinifierOptions: {
+      removeComments: true,
+      removeCommentsFromCDATA: true,
+      collapseWhitespace: true,
+      collapseBooleanAttributes: true,
+      removeAttributeQuotes: true,
+      removeEmptyAttributes: true
     }
   }
 }).register(fastifyView, {
@@ -42,9 +52,30 @@ const server = fastify({
   options: {
     partials: {
       authors: "views/partials/authors.handlebars",
+    },
+    useHtmlMinifier: minifier,
+    htmlMinifierOptions: {
+      removeComments: true,
+      removeCommentsFromCDATA: true,
+      collapseWhitespace: true,
+      collapseBooleanAttributes: true,
+      removeAttributeQuotes: true,
+      removeEmptyAttributes: true
     }
   },
-  propertyName: 'plain'
+  propertyName: 'rss'
+}).register(fastifyView, {
+  engine: {
+    handlebars: handlebars
+  },
+  layout: "views/layouts/plain.handlebars",
+  viewExt: "handlebars",
+  options: {
+    partials: {
+      authors: "views/partials/authors.handlebars",
+    }
+  },
+  propertyName: 'm3u'
 }).register(fastifyBasicAuth, {
   validate: async function (username, password, request, reply) {
     if (username !== process.env.AUDIO_BOOKS_USER || password !== process.env.AUDIO_BOOKS_PASSWORD) {
@@ -387,7 +418,7 @@ server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, repl
       break
 
     case 'm3u':
-      return reply.type('audio/x-mpegurl').plain('views/m3u', {
+      return reply.type('audio/x-mpegurl').m3u('views/m3u', {
         book: {
           ...book,
           files: (book?.files || []).map((file) => {
@@ -413,7 +444,7 @@ server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, repl
         publication: book.publication(),
         url: book.toUrl(request.protocol, request.hostname)
       }
-      return reply.type('application/xml').plain('views/atom', {
+      return reply.type('application/xml').rss('views/atom', {
         book: data
       })
       break;
