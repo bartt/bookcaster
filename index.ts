@@ -60,7 +60,7 @@ handlebars.registerHelper('formatDuration', (durationSec: number) => {
   const duration = []
   const hours = durationSec / HOUR
   if (hours > 0) {
-    duration.push(Math.floor(hours))
+    duration.push(Math.floor(hours).toString().padStart(2, '0'))
     durationSec = durationSec % HOUR
   }
   const minutes = durationSec / 60
@@ -68,6 +68,7 @@ handlebars.registerHelper('formatDuration', (durationSec: number) => {
     duration.push(Math.floor(minutes).toString().padStart(2, '0'))
     durationSec = durationSec % 60
   }
+  duration.push(Math.floor(durationSec).toString().padStart(2, '0'))
   return duration.join(':')
 })
 
@@ -383,14 +384,39 @@ server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, repl
               ...file,
               url: `${request.protocol}://${process.env.AUDIO_BOOKS_USER}:${process.env.AUDIO_BOOKS_PASSWORD}@${request.hostname}/${book.name}/${file.name}`
             }
-          }),
-          author: book.authors && book.authors[0]
+          })
         }
       })
       break;
 
     case 'rss':
-      return `${book.name}.${ext}`
+      const data = {
+        ...book,
+        files: (book?.files || []).map((file) => {
+          return {
+            ...file,
+            url: `${request.protocol}://${process.env.AUDIO_BOOKS_USER}:${process.env.AUDIO_BOOKS_PASSWORD}@${request.hostname}/${book.name}/${file.name}`,
+            mimeType: 'audio/mpeg',
+          }
+        }),
+        publication: (book?.files || []).reduce((max: MediaFile, file: MediaFile) => max.date < file.date ? file : max).date || new Date(),
+        url: `${request.protocol}://${process.env.AUDIO_BOOKS_USER}:${process.env.AUDIO_BOOKS_PASSWORD}@${request.hostname}/${book.name}`
+      }
+      return reply.type('application/rss+xml').plain('views/atom', {
+        book: data
+      })
+      break;
+
+    case 'jpg':
+    case 'jpeg':
+    case 'png':
+      const imageResponse = await s3Client.send(new GetObjectCommand({
+        ...s3BaseConfig,
+        Key: `audiobooks/${request.params.bookName}/${request.params.bookName}.${ext}`
+      }))
+      const buffer = Buffer.from(await imageResponse.Body?.transformToByteArray() || [])
+      reply.type(`image/${ext}`)
+      return reply.send(buffer)
       break;
 
     default:

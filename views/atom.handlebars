@@ -1,36 +1,44 @@
+{{#with book}}
 <?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom" xml:lang="en" version="2.0">
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom" xml:lang="en"
+  version="2.0">
   <channel>
     <title>{{title}} by {{join authors ' & '}}</title>
-    <atom:link href="{{url}}.rss" rel="self" type="application/rss+xml"/>
+    <atom:link href="{{url}}.rss" rel="self" type="application/rss+xml" />
+    <link>{{url}}</link>
     <description>{{description}}</description>
     <lastBuildDate>{{toUTCString publication}}</lastBuildDate>
     <language>en</language>
-    <itunes:image href="{{images}}"/>
+    <itunes:image href="{{url}}/{{image.name}}" />
     <image>
-      <url></url>
-      <title>{{title}} cover</title>
+      <url>
+        {{url}}/{{image.name}}
+      </url>
+      <title>{{title}} by {{join authors ' & '}}</title>
       <link>{{url}}</link>
     </image>
     <itunes:author>{{join authors ' & '}}</itunes:author>
     <itunes:explicit>clean</itunes:explicit>
     {{#each categories}}
-    <itunes:category text="{{name}}"/>
+    <itunes:category text="{{name}}" />
     {{/each}}
     <itunes:owner>
       <itunes:name>Bookcaster</itunes:name>
       <itunes:email>bookcaster@bartt.me</itunes:email>
     </itunes:owner>
     {{#each files}}
+    <item>
       <title>{{../title}} - Episode {{@index}}</title>
-      <description>{{../tite}} by {{join ../authors ' & '}} - Episode {{@index}}</description>
+      <description>{{../title}} by {{join ../authors ' & '}} - Episode {{@index}}</description>
       <link>{{url}}</link>
-      <enclosure url="{{url}}" length="{{round duration}}" type="{{mimeType}}"/>
+      <enclosure url="{{url}}" length="{{round duration}}" type="{{mimeType}}" />
       <guid>{{url}}</guid>
       <itunes:duration>{{formatDuration duration}}</itunes:duration>
-      <author>{{join ../authors ' & '}}</author>
+      <author>nobody@example.com ({{join ../authors ' & '}})</author>
       <itunes:author>{{join ../authors ' & '}}</itunes:author>
       <pubDate>{{toUTCString ../publication}}</pubDate>
+    </item>
     {{/each}}
   </channel>
 </rss>
+{{/with}}

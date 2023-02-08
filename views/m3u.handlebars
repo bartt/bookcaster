@@ -2,7 +2,7 @@
 
 {{#with book}}
 {{#each files}}
-#EXTINF:{{round duration}},{{../title}} - {{../author.name}} - Episode {{@index}}
+#EXTINF:{{round duration}},{{../title}} - {{join ../authors ' & '}} - Episode {{@index}}
 {{url}}
 
 {{/each}}
