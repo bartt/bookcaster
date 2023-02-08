@@ -424,7 +424,7 @@ server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, repl
           files: (book?.files || []).map((file) => {
             return {
               ...file,
-              url: file.toUrl(request.protocol, request.hostname)
+              url: file.toUrl(request.protocol, request.hostname, book.name)
             }
           })
         }
@@ -437,7 +437,7 @@ server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, repl
         files: (book?.files || []).map((file) => {
           return {
             ...file,
-            url: file.toUrl(request.protocol, request.hostname),
+            url: file.toUrl(request.protocol, request.hostname, book.name),
             mimeType: 'audio/mpeg',
           }
         }),

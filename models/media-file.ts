@@ -9,8 +9,8 @@ export class MediaFile extends Model {
   date!: Date;
   book!: Book;
 
-  toUrl(protocol: string, hostname: string): string {
-    return `${protocol}://${process.env.AUDIO_BOOKS_USER}:${process.env.AUDIO_BOOKS_PASSWORD}@${hostname}/${this.name}`
+  toUrl(protocol: string, hostname: string, bookName: string): string {
+    return `${protocol}://${process.env.AUDIO_BOOKS_USER}:${process.env.AUDIO_BOOKS_PASSWORD}@${hostname}/${bookName}/${this.name}`
   }
 
   static tableName = 'files';
