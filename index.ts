@@ -10,7 +10,7 @@ import sizeOf from 'image-size';
 import ImageDataURI from 'image-data-uri';
 import { parseBuffer } from 'music-metadata';
 import { S3Client, ListObjectsCommand, ListObjectsCommandOutput, GetObjectCommand, GetObjectCommandOutput } from "@aws-sdk/client-s3";
-import minifier from 'html-minifier'
+import { minify as minifier} from 'html-minifier'
 import { inspect } from 'node:util';
 import { cwd } from 'node:process';
 import { join } from 'node:path'
