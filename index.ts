@@ -10,7 +10,7 @@ import sizeOf from 'image-size';
 import ImageDataURI from 'image-data-uri';
 import { parseBuffer } from 'music-metadata';
 import { S3Client, ListObjectsCommand, ListObjectsCommandOutput, GetObjectCommand, GetObjectCommandOutput } from "@aws-sdk/client-s3";
-import { minify as minifier} from 'html-minifier'
+import { minify as minifier } from 'html-minifier'
 import { inspect } from 'node:util';
 import { cwd } from 'node:process';
 import { join } from 'node:path'
@@ -146,9 +146,17 @@ server.get('/screen.css', async (request, reply) => {
 
 server.get('/launcher.js', async (request, reply) => {
   return reply.sendFile('launcher.js', {
-    maxAge: '3600000' // In ms!
+    maxAge: '3600000' // 1 hour in ms!
   })
 })
+
+for (const size of [20, 29, 40, 50, 58, 72, 76, 80, 100, 144, 152, 167]) {
+  server.get(`/favicon-${size}.png`, async (request, reply) => {
+    return reply.sendFile(request.routerPath, {
+      maxAge: '86400000' // 1 day in ms!
+    })
+  })    
+}
 
 interface SyncRequestGeneric extends RequestGenericInterface {
   Querystring: {
@@ -555,7 +563,7 @@ server.get<AuthorRequestGeneric>('/author/:authorName', async (request, reply) =
 
 server.get('/categories', async (request, reply) => {
   const categories = await Category.query().orderBy('name').withGraphFetched('[books]');
-  return reply.view('views/categories', { 
+  return reply.view('views/categories', {
     categories,
     title: 'Audiobooks by Category'
   })
