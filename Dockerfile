@@ -1,4 +1,5 @@
 FROM node:lts-alpine
+LABEL author="Bart Teeuwisse <bart@thecodemill.biz>"
 
 COPY package.json /bookcaster/
 COPY dist/ /bookcaster/
@@ -8,7 +9,8 @@ RUN mkdir /bookcaster/data
 RUN cd /bookcaster && npm install
 
 WORKDIR /bookcaster
+VOLUME [ "/bookcaster/data" ]
 
 EXPOSE 8080
 
-ENTRYPOINT ["npm", "run", "start"]
+CMD ["npm", "run", "start"]
