@@ -7,7 +7,7 @@
   "scripts": {
     "dev:tsc": "tsc --project tsconfig.json --watch --outdir dist",
     "dev:watch": "node -v && nodemon --loader ts-node/esm dist/index.js",
-    "start": "node --loader ts-node/esm dist/index.js"
+    "start": "node --loader ts-node/esm index.js"
   },
   "repository": {
     "type": "git",

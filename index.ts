@@ -564,7 +564,6 @@ server.listen({ port: 8080, host: '::' }, async (err, address) => {
   }
 
   // Setup the database
-  // await knex.migrate.rollback({}, true)
   await knex.migrate.latest(config.migrations)
 
   console.log(`Server listening at ${address}`)
