@@ -412,8 +412,9 @@ server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, repl
         books: [{
           ...book,
           duration: book.duration(),
-          url: book.toUrl(request.protocol, request.hostname)
-        }]
+          url: book.toUrl(request.protocol, request.hostname),
+        }],
+        title: `${book.title} by ${(book.authors || []).map((author) => author.name).join(' & ') || 'Unknown Author'}`
       })
       break
 
@@ -521,13 +522,8 @@ server.get('/authors', async (request, reply) => {
   const authors = await Author.query().orderBy('name').withGraphFetched('[books]');
   return reply.view('views/authors', {
     authors,
-    title: `Audiobooks by author`
+    title: `Audiobooks by Author`
   })
-})
-
-server.get('/categories', async (request, reply) => {
-  const categories = await Category.query().orderBy('name').withGraphFetched('[books]');
-  return reply.view('views/categories', { categories })
 })
 
 interface AuthorRequestGeneric extends RequestGenericInterface {
@@ -554,6 +550,41 @@ server.get<AuthorRequestGeneric>('/author/:authorName', async (request, reply) =
   return reply.view('views/books', {
     books: booksSummed,
     title: `Audiobooks by ${author.name}`
+  })
+})
+
+server.get('/categories', async (request, reply) => {
+  const categories = await Category.query().orderBy('name').withGraphFetched('[books]');
+  return reply.view('views/categories', { 
+    categories,
+    title: 'Audiobooks by Category'
+  })
+})
+
+interface CategoryRequestGeneric extends RequestGenericInterface {
+  Params: {
+    categoryName: string
+  }
+}
+
+server.get<CategoryRequestGeneric>('/category/:categoryName', async (request, reply) => {
+  const category = await Category.query().findOne({
+    name: request.params.categoryName
+  })
+  if (!category) {
+    return "error"
+  }
+  const books = await Category.relatedQuery('books').for(category.id).withGraphFetched('[files, authors, categories]')
+  const booksSummed = books.map((book) => {
+    return {
+      ...book,
+      duration: book.duration(),
+      url: book.toUrl(request.protocol, request.hostname)
+    }
+  })
+  return reply.view('views/books', {
+    books: booksSummed,
+    title: `Audiobooks in the ${category.name} category`
   })
 })
 
