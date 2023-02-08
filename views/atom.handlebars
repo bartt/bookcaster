@@ -14,10 +14,10 @@
       <url>
         {{url}}/{{image.name}}
       </url>
-      <title>{{title}} by {{join authors ' & '}}</title>
+      <title>{{title}} by {{> authors}}</title>
       <link>{{url}}</link>
     </image>
-    <itunes:author>{{join authors ' & '}}</itunes:author>
+    <itunes:author>{{> authors}}</itunes:author>
     <itunes:explicit>clean</itunes:explicit>
     {{#each categories}}
     <itunes:category text="{{name}}" />
@@ -29,13 +29,13 @@
     {{#each files}}
     <item>
       <title>{{../title}} - Episode {{@index}}</title>
-      <description>{{../title}} by {{join ../authors ' & '}} - Episode {{@index}}</description>
+      <description>{{../title}} by {{> authors ..}} - Episode {{@index}}</description>
       <link>{{url}}</link>
       <enclosure url="{{url}}" length="{{round duration}}" type="{{mimeType}}" />
       <guid>{{url}}</guid>
       <itunes:duration>{{formatDuration duration}}</itunes:duration>
-      <author>nobody@example.com ({{join ../authors ' & '}})</author>
-      <itunes:author>{{join ../authors ' & '}}</itunes:author>
+      <author>nobody@example.com ({{> authors ..}})</author>
+      <itunes:author>{{> authors ..}}</itunes:author>
       <pubDate>{{toUTCString ../publication}}</pubDate>
     </item>
     {{/each}}

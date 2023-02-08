@@ -14,6 +14,18 @@ export class Book extends Model {
   image?: CoverImage
   files?: MediaFile[]
 
+  duration(): number {
+    return (this.files || []).reduce((acc, file) => acc + file.duration, 0)
+  }
+
+  publication(): Date {
+    return (this.files || []).reduce((max: MediaFile, file: MediaFile) => max.date < file.date ? file : max).date || new Date()
+  }
+
+  toUrl(protocol: string, hostname: string): string {
+    return `${protocol}://${process.env.AUDIO_BOOKS_USER}:${process.env.AUDIO_BOOKS_PASSWORD}@${hostname}/${this.name}`
+  }
+
   static tableName = 'books';
 
   static relationMappings = () => ({

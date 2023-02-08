@@ -29,6 +29,7 @@ const server = fastify({
     partials: {
       header: "views/partials/header.handlebars",
       footer: "views/partials/footer.handlebars",
+      authors: "views/partials/authors.handlebars",
       book: "views/partials/book.handlebars",
     }
   }
@@ -38,6 +39,11 @@ const server = fastify({
   },
   layout: "views/layouts/plain.handlebars",
   viewExt: "handlebars",
+  options: {
+    partials: {
+      authors: "views/partials/authors.handlebars",
+    }
+  },
   propertyName: 'plain'
 }).register(fastifyBasicAuth, {
   validate: async function (username, password, request, reply) {
@@ -76,7 +82,11 @@ handlebars.registerHelper('round', (durationSec: number): number => Math.round(d
 
 handlebars.registerHelper('join', (authors: Array<Author>, separator: string = ', '): string => authors.map((author) => author.name).join(separator))
 
+handlebars.registerHelper('blankGuard', (value: string, guard: string) => !value || value.length == 0 ? guard : value)
+
 handlebars.registerHelper('toUTCString', (date: Date): string => date.toUTCString())
+
+handlebars.registerHelper('toItpc', (url: string) => url.replace(/^https?/, 'itpc'))
 
 const s3Client = new S3Client({
   credentials: {
@@ -370,7 +380,8 @@ server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, repl
       return reply.view('views/books', {
         books: [{
           ...book,
-          duration: (book?.files || []).reduce((acc, file) => acc + file.duration, 0)
+          duration: book.duration(),
+          url: book.toUrl(request.protocol, request.hostname)
         }]
       })
       break
@@ -382,7 +393,7 @@ server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, repl
           files: (book?.files || []).map((file) => {
             return {
               ...file,
-              url: `${request.protocol}://${process.env.AUDIO_BOOKS_USER}:${process.env.AUDIO_BOOKS_PASSWORD}@${request.hostname}/${book.name}/${file.name}`
+              url: file.toUrl(request.protocol, request.hostname)
             }
           })
         }
@@ -395,14 +406,14 @@ server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, repl
         files: (book?.files || []).map((file) => {
           return {
             ...file,
-            url: `${request.protocol}://${process.env.AUDIO_BOOKS_USER}:${process.env.AUDIO_BOOKS_PASSWORD}@${request.hostname}/${book.name}/${file.name}`,
+            url: file.toUrl(request.protocol, request.hostname),
             mimeType: 'audio/mpeg',
           }
         }),
-        publication: (book?.files || []).reduce((max: MediaFile, file: MediaFile) => max.date < file.date ? file : max).date || new Date(),
-        url: `${request.protocol}://${process.env.AUDIO_BOOKS_USER}:${process.env.AUDIO_BOOKS_PASSWORD}@${request.hostname}/${book.name}`
+        publication: book.publication(),
+        url: book.toUrl(request.protocol, request.hostname)
       }
-      return reply.type('application/rss+xml').plain('views/atom', {
+      return reply.type('application/xml').plain('views/atom', {
         book: data
       })
       break;
@@ -465,7 +476,8 @@ server.get('/', async (request, reply) => {
   const booksSummed = books.map((book) => {
     return {
       ...book,
-      duration: (book.files || []).reduce((acc, file) => acc + file.duration, 0)
+      duration: book.duration(),
+      url: book.toUrl(request.protocol, request.hostname)
     }
   })
   return reply.view('views/books', {
@@ -504,7 +516,8 @@ server.get<AuthorRequestGeneric>('/author/:authorName', async (request, reply) =
   const booksSummed = books.map((book) => {
     return {
       ...book,
-      duration: (book.files || []).reduce((acc, file) => acc + file.duration, 0)
+      duration: book.duration(),
+      url: book.toUrl(request.protocol, request.hostname)
     }
   })
   return reply.view('views/books', {
@@ -513,7 +526,7 @@ server.get<AuthorRequestGeneric>('/author/:authorName', async (request, reply) =
   })
 })
 
-server.listen({ port: 8080 }, async (err, address) => {
+server.listen({ port: 8080, host: '::' }, async (err, address) => {
   if (err) {
     console.error(err)
     process.exit(1)
