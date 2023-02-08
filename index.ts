@@ -3,6 +3,7 @@ dotenv.config()
 
 import fastify, { RequestGenericInterface } from 'fastify';
 import { fastifyView } from '@fastify/view'
+import { fastifyStatic } from '@fastify/static'
 import { fastifyBasicAuth } from '@fastify/basic-auth'
 import handlebars from 'handlebars'
 import sizeOf from 'image-size';
@@ -11,27 +12,31 @@ import { parseBuffer } from 'music-metadata';
 import { inspect } from 'node:util';
 import { S3Client, ListObjectsCommand, ListObjectsCommandOutput, GetObjectCommand, GetObjectCommandOutput } from "@aws-sdk/client-s3";
 import { Author, Book, Category, CoverImage, knex, config, MediaFile } from './models/index.js';
-import { exit } from 'node:process';
-import { raw } from 'objection';
+import { cwd } from 'node:process';
+import { join } from 'node:path'
 
 const server = fastify({
   logger: true
+}).register(fastifyStatic, {
+  root: join(cwd(), 'public')
 }).register(fastifyView, {
   engine: {
     handlebars: handlebars
   },
   layout: "views/layouts/main.handlebars",
   viewExt: "handlebars",
+  options: {
+    partials: {
+      header: "views/partials/header.handlebars",
+      footer: "views/partials/footer.handlebars",
+      book: "views/partials/book.handlebars",
+    }
+  }
 }).register(fastifyView, {
   engine: {
     handlebars: handlebars
   },
   layout: "views/layouts/plain.handlebars",
-  partials: {
-    header: "partials/header.handlebars",
-    footer: "partials/footer.handlebars",
-    book: "partials/book.handlebars",
-  },
   viewExt: "handlebars",
   propertyName: 'plain'
 }).register(fastifyBasicAuth, {
@@ -66,9 +71,9 @@ handlebars.registerHelper('formatDuration', (durationSec: number) => {
   return duration.join(':')
 })
 
-handlebars.registerHelper('round', (durationSec: number):number => Math.round(durationSec))
+handlebars.registerHelper('round', (durationSec: number): number => Math.round(durationSec))
 
-handlebars.registerHelper('join', (items: Array, separator: string = ', '):string => items.join(separator))
+handlebars.registerHelper('join', (authors: Array<Author>, separator: string = ', '): string => authors.map((author) => author.name).join(separator))
 
 handlebars.registerHelper('toUTCString', (date: Date): string => date.toUTCString())
 
@@ -90,6 +95,18 @@ const mediaTagMaxSize = 666 * 1024;
 
 // Minimum description length to extract from media files.
 const minimumDescriptionLenth = 120;
+
+server.get('/screen.css', async (request, reply) => {
+  return reply.sendFile('screen.css', {
+    maxAge: '3600000' // In ms!
+  })
+})
+
+server.get('/launcher.js', async (request, reply) => {
+  return reply.sendFile('launcher.js', {
+    maxAge: '3600000' // In ms!
+  })
+})
 
 interface SyncRequestGeneric extends RequestGenericInterface {
   Querystring: {
@@ -405,7 +422,7 @@ server.get<FileRequestGeneric>('/:bookName/:fileName', async (request, reply) =>
       contentSize = Number.parseInt(fileResponse.ContentRange.split('/').pop() || '') || contentSize
     }
     if (fileResponse.ContentType && !isTypeSet) {
-      reply.raw.writeHead(200, { 
+      reply.raw.writeHead(200, {
         'Content-Type': fileResponse.ContentType,
         'Content-Length': contentSize
       })
@@ -425,7 +442,10 @@ server.get('/', async (request, reply) => {
       duration: (book.files || []).reduce((acc, file) => acc + file.duration, 0)
     }
   })
-  return reply.view('views/books', { books: booksSummed })
+  return reply.view('views/books', {
+    books: booksSummed,
+    title: 'Audiobooks as Podcasts'
+  })
 })
 
 server.get('/authors', async (request, reply) => {
