@@ -209,6 +209,7 @@ server.get('/date', async (query, reply) => {
       }
     }
   }
+  return reply.raw.end()
 })
 
 server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
@@ -439,6 +440,7 @@ server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
     }
     isTruncated = listResponse.IsTruncated || false
   }
+  return reply.raw.end()
 })
 
 server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, reply) => {
