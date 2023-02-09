@@ -6,7 +6,7 @@ COPY dist/ /bookcaster/
 COPY views/ /bookcaster/views/
 COPY public/ /bookcaster/public/
 RUN mkdir /bookcaster/data 
-RUN cd /bookcaster && npm install
+RUN cd /bookcaster && npm install && apk add sqlite
 
 WORKDIR /bookcaster
 VOLUME [ "/bookcaster/data" ]
