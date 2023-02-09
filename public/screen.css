@@ -85,3 +85,7 @@ body {
 .categories .fa-stack {
     margin-right: .5rem;
 }
+
+.header h1 {
+    text-align: center;
+}
