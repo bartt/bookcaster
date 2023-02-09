@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config()
 
-import fastify, { RequestGenericInterface } from 'fastify';
+import fastify from 'fastify';
 import { fastifyView } from '@fastify/view'
 import { fastifyStatic } from '@fastify/static'
 import { fastifyBasicAuth } from '@fastify/basic-auth'
@@ -15,6 +15,7 @@ import { inspect } from 'node:util';
 import { cwd } from 'node:process';
 import { join } from 'node:path'
 import { Author, Book, Category, CoverImage, knex, config, MediaFile } from './models/index.js';
+import { AuthorRequestGeneric, BookFeedRequestGeneric, CategoryRequestGeneric, FileRequestGeneric, SyncRequestGeneric } from './interfaces/index.js';
 
 const server = fastify({
   logger: true
@@ -158,18 +159,59 @@ for (const size of [20, 29, 40, 50, 58, 72, 76, 80, 100, 144, 152, 167]) {
   })
 }
 
-interface SyncRequestGeneric extends RequestGenericInterface {
-  Querystring: {
-    addOnly: boolean
-  }
-}
 
 server.get('/robots.txt', async (request, reply) => {
   return "User-agent: *\nDisallow: /\n"
 })
 
+server.get('/date', async (query, reply) => {
+  let isTruncated = true
+  let marker: string | undefined
+  while (isTruncated) {
+    const listResponse: ListObjectsCommandOutput = await s3Client.send(new ListObjectsCommand({
+      ...s3BaseConfig,
+      Prefix: "audiobooks",
+      Marker: marker,
+    }))
+    for (const obj of listResponse.Contents || []) {
+      marker = obj.Key
+      if (obj.Size == 0) {
+        continue
+      }
+      const parts: string[] = obj.Key?.split('/') || []
+      // Skip /audiobooks top level directory.
+      if (parts.length <= 2) {
+        continue
+      }
+      const ext: string = obj.Key?.split('.')?.pop()?.toLowerCase() || ''
+      const fileName = parts.pop() || ""
+      const bookName = parts.pop() || ""
+      const book = await Book.query()
+        .findOne('name', 'like', bookName)
+      if (!book) {
+        continue
+      }
+      switch (ext) {
+        case 'mp3':
+        case 'm4a':
+          reply.raw.write(`Setting date of ${fileName} to ${obj.LastModified}.\n`)
+          await Book.relatedQuery('files')
+          .for(book.id)
+          .where('name', 'like', fileName)
+          .first()
+          .patch({
+            date: obj.LastModified
+          })
+          break;
+        default:
+          // Ignore
+          break;
+      }
+    }
+  }
+})
+
 server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
-  const actions: string[] = []
   let isTruncated = true
   let marker: string | undefined
   const addOnly = request.query.addOnly
@@ -397,17 +439,7 @@ server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
     }
     isTruncated = listResponse.IsTruncated || false
   }
-
-  return actions.join('\n');
 })
-
-
-interface BookFeedRequestGeneric extends RequestGenericInterface {
-  Params: {
-    bookName: string,
-    ext: string
-  }
-}
 
 server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, reply) => {
   let ext = request.params.ext.split('.').pop()
@@ -480,13 +512,6 @@ server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, repl
   }
 })
 
-interface FileRequestGeneric extends RequestGenericInterface {
-  Params: {
-    bookName: string,
-    fileName: string
-  }
-}
-
 server.get<FileRequestGeneric>('/:bookName/:fileName', async (request, reply) => {
   const rangeSize = 6 * 1024 * 1024
   let rangeStart = 0
@@ -541,12 +566,6 @@ server.get('/authors', async (request, reply) => {
   })
 })
 
-interface AuthorRequestGeneric extends RequestGenericInterface {
-  Params: {
-    authorName: string
-  }
-}
-
 server.get<AuthorRequestGeneric>('/author/:authorName', async (request, reply) => {
   const author = await Author.query()
     .findOne('name', 'like', request.params.authorName)
@@ -579,21 +598,15 @@ server.get('/categories', async (request, reply) => {
   })
 })
 
-interface CategoryRequestGeneric extends RequestGenericInterface {
-  Params: {
-    categoryName: string
-  }
-}
-
 server.get<CategoryRequestGeneric>('/category/:categoryName', async (request, reply) => {
   const category = await Category.query()
     .findOne('name', 'like', request.params.categoryName)
   if (!category) {
     return "error"
   }
-  const books = await Category.relatedQuery('books')
+  const books = (await Category.relatedQuery('books')
     .for(category.id)
-    .withGraphFetched('[files, authors, categories]')
+    .withGraphFetched('[files, authors, categories]') as Book[])
   const booksSummed = books.map((book) => {
     return {
       ...book,
