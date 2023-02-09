@@ -115,7 +115,7 @@ handlebars.registerHelper('join', (authors: Array<Author>, separator: string = '
 
 handlebars.registerHelper('blankGuard', (value: string, guard: string) => !value || value.length == 0 ? guard : value)
 
-handlebars.registerHelper('toUTCString', (date: Date): string => date.toUTCString())
+handlebars.registerHelper('toUTCString', (date: number): string => new Date(date).toUTCString())
 
 handlebars.registerHelper('toItpc', (url: string) => url.replace(/^https?/, 'itpc'))
 
@@ -155,7 +155,7 @@ for (const size of [20, 29, 40, 50, 58, 72, 76, 80, 100, 144, 152, 167]) {
     return reply.sendFile(request.routerPath, {
       maxAge: '86400000' // 1 day in ms!
     })
-  })    
+  })
 }
 
 interface SyncRequestGeneric extends RequestGenericInterface {
@@ -191,14 +191,15 @@ server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
         // Skip the empty part as the result of the trailing / for directories.
         const name = parts[parts.length - 2]
         // Skip books that already exist.
-        if (await Book.query().findOne({ name: name })) {
+        if (await Book.query().findOne('name', 'like', name)) {
           reply.raw.write(`Skipped recreating known book ${name}.\n`)
           continue
         }
-        const book = await Book.query().insert({
-          name: name,
-          title: Book.toTitle(name)
-        })
+        const book = await Book.query()
+          .insert({
+            name: name,
+            title: Book.toTitle(name)
+          })
         reply.raw.write(`Inserted book ${book.name}.\n`)
       } else {
         // Skip image/audio files in the /audiobooks top level directory.
@@ -208,7 +209,8 @@ server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
         const ext: string = obj.Key?.split('.')?.pop()?.toLowerCase() || ''
         const fileName = parts.pop() || ""
         const bookName = parts.pop() || ""
-        const book = await Book.query().findOne({ name: bookName })
+        const book = await Book.query()
+          .findOne('name', 'like', bookName)
         if (!book) {
           reply.raw.write(`Could not find book ${bookName}!\n`)
           continue
@@ -222,11 +224,13 @@ server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
           case 'm4a':
             // Handle audio file
             // See if the audio file is already in the database.
-            let file = await Book.relatedQuery('files').for(book.id).where({
-              name: fileName,
-            }).whereNot({
-              duration: 0
-            }).first()
+            let file = await Book.relatedQuery('files')
+              .for(book.id)
+              .where('name', 'like', fileName)
+              .whereNot({
+                duration: 0
+              })
+              .first()
             if (file) {
               // Skip the audio file when the size hasn't changed. 
               if (file.size == obj.Size) {
@@ -268,16 +272,15 @@ server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
             // Check if it is a new file.
             file = await Book.relatedQuery('files')
               .for(book.id)
-              .where({
-                name: fileName,
-              }).first()
+              .where('name', 'like', fileName).first()
             if (file) {
-              await file.$query().update({
-                name: fileName,
-                size: obj.Size as number,
-                duration: metadata?.format.duration || 0,
-                date: fileResponse.LastModified || new Date()
-              })
+              await file.$query()
+                .update({
+                  name: fileName,
+                  size: obj.Size as number,
+                  duration: metadata?.format.duration || 0,
+                  date: fileResponse.LastModified || new Date()
+                })
               reply.raw.write(`Updated ${fileName}.\n`);
             } else {
               await Book.relatedQuery('files')
@@ -296,16 +299,15 @@ server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
             for (const author of authors) {
               const record = await Book.relatedQuery('authors')
                 .for(book.id)
-                .where({
-                  name: author.name
-                }).first()
+                .where('name', 'like', author.name)
+                .first()
               if (record) {
                 console.log(`Skipping known author ${author.name} of ${bookName}`)
                 continue
               }
-              const dbAuthor = await Author.query().findOne({
-                name: author.name
-              }).first()
+              const dbAuthor = await Author.query()
+                .findOne('name', 'like', author.name)
+                .first()
               if (dbAuthor) {
                 await Book.relatedQuery('authors')
                   .for(book.id)
@@ -324,16 +326,15 @@ server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
             for (const category of categories) {
               const record = await Book.relatedQuery('categories')
                 .for(book.id)
-                .where({
-                  name: category.name
-                }).first()
+                .where('name', 'like', category.name)
+                .first()
               if (record) {
                 console.log(`Skipping known category ${category.name} of ${bookName}`)
                 continue
               }
-              const dbCategory = await Category.query().findOne({
-                name: category.name
-              }).first()
+              const dbCategory = await Category.query()
+                .findOne('name', 'like', category.name)
+                .first()
               if (dbCategory) {
                 await Book.relatedQuery('categories')
                   .for(book.id)
@@ -350,18 +351,20 @@ server.get<SyncRequestGeneric>('/sync', async (request, reply) => {
             // Description 
             const description = metadata?.common.comment?.join(' ') || ''
             if (description.length > minimumDescriptionLenth) {
-              await book.$query().patch({
-                description: description
-              })
+              await book.$query()
+                .patch({
+                  description: description
+                })
             }
 
             // Update the book's title when the title in the file is longer
             const title = metadata?.common.album
             const bookTitleLength = book.title?.length || 0
             if (title && bookTitleLength < title.length) {
-              await book.$query().patch({
-                title: title
-              })
+              await book.$query()
+                .patch({
+                  title: title
+                })
             }
             break;
           case "jpg":
@@ -408,9 +411,9 @@ interface BookFeedRequestGeneric extends RequestGenericInterface {
 
 server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, reply) => {
   let ext = request.params.ext.split('.').pop()
-  const book = await Book.query().findOne({
-    name: request.params.bookName
-  }).withGraphFetched('[files, authors, categories]')
+  const book = await Book.query()
+    .findOne('name', 'like', request.params.bookName)
+    .withGraphFetched('[files, authors, categories]')
   if (!book) {
     return `Could not find ${request.params.bookName}!`
   }
@@ -453,6 +456,7 @@ server.get<BookFeedRequestGeneric>('/:bookName([^.]+):ext', async (request, repl
         publication: book.publication(),
         url: book.toUrl(request.protocol, request.hostname)
       }
+      console.log(data)
       return reply.type('application/xml').rss('views/atom', {
         book: data
       })
@@ -512,7 +516,8 @@ server.get<FileRequestGeneric>('/:bookName/:fileName', async (request, reply) =>
 })
 
 server.get('/', async (request, reply) => {
-  const books = await Book.query().withGraphFetched('[files, authors, categories]');
+  const books = await Book.query()
+    .withGraphFetched('[files, authors, categories]');
   const booksSummed = books.map((book) => {
     return {
       ...book,
@@ -527,7 +532,9 @@ server.get('/', async (request, reply) => {
 })
 
 server.get('/authors', async (request, reply) => {
-  const authors = await Author.query().orderBy('name').withGraphFetched('[books]');
+  const authors = await Author.query()
+    .orderBy('name')
+    .withGraphFetched('[books]');
   return reply.view('views/authors', {
     authors,
     title: `Audiobooks by Author`
@@ -541,13 +548,14 @@ interface AuthorRequestGeneric extends RequestGenericInterface {
 }
 
 server.get<AuthorRequestGeneric>('/author/:authorName', async (request, reply) => {
-  const author = await Author.query().findOne({
-    name: request.params.authorName
-  })
+  const author = await Author.query()
+    .findOne('name', 'like', request.params.authorName)
   if (!author) {
     return "error"
   }
-  const books = await Author.relatedQuery('books').for(author.id).withGraphFetched('[files, authors, categories]')
+  const books = await Author.relatedQuery('books')
+    .for(author.id)
+    .withGraphFetched('[files, authors, categories]')
   const booksSummed = books.map((book) => {
     return {
       ...book,
@@ -562,7 +570,9 @@ server.get<AuthorRequestGeneric>('/author/:authorName', async (request, reply) =
 })
 
 server.get('/categories', async (request, reply) => {
-  const categories = await Category.query().orderBy('name').withGraphFetched('[books]');
+  const categories = await Category.query()
+    .orderBy('name')
+    .withGraphFetched('[books]');
   return reply.view('views/categories', {
     categories,
     title: 'Audiobooks by Category'
@@ -576,17 +586,17 @@ interface CategoryRequestGeneric extends RequestGenericInterface {
 }
 
 server.get<CategoryRequestGeneric>('/category/:categoryName', async (request, reply) => {
-  const category = await Category.query().findOne({
-    name: request.params.categoryName
-  })
+  const category = await Category.query()
+    .findOne('name', 'like', request.params.categoryName)
   if (!category) {
     return "error"
   }
-  const books = await Category.relatedQuery('books').for(category.id).withGraphFetched('[files, authors, categories]')
+  const books = await Category.relatedQuery('books')
+    .for(category.id)
+    .withGraphFetched('[files, authors, categories]')
   const booksSummed = books.map((book) => {
     return {
       ...book,
-      duration: book.duration(),
       url: book.toUrl(request.protocol, request.hostname)
     }
   })
