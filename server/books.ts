@@ -22,7 +22,7 @@ const books: FastifyPluginAsync = async (server: FastifyInstance): Promise<void>
             duration: book.duration(),
             url: book.toUrl(request.protocol, request.hostname),
           },
-          title: `${book.title} by ${(book.authors || []).map((author) => author.name).join(' & ') || 'Unknown Author'}`
+          title: `${book.title}`
         })
 
       case 'm3u':

@@ -4,18 +4,24 @@
     {{{description}}}
   </div>
   {{/if}}
+  
   <h4>Written/performed by:</h4>
   <ul class="authors">
     {{#each authors}}
       <li>{{> author}}</li>
     {{/each}}
+    {{#unless authors}}
+       <li>{{> stack icon="user"}}Unknown author</li>
+    {{/unless}}
   </ul>
-  {{#if categories}}
+
   <h4>Filed under:</h4>
   <ul class="categories">
     {{#each categories}}
       <li>{{> category}}</li>
     {{/each}}
+    {{#unless categories}}
+       <li>{{> stack icon="folder"}}None</li>
+    {{/unless}}
   </ul>
-  {{/if}}
 </div>
