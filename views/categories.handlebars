@@ -1,11 +1,7 @@
 <ul class="categories">
     {{#each categories}}
     <li>
-        <a href="/category/{{name}}">
-            <span class="fa-stack">
-                <i class="fa fa-circle fa-stack-2x"></i>
-                <i class="fa fa-folder fa-inverse fa-stack-1x"></i>
-            </span>{{name}}</a>
+        {{> category}}
         <blockquote>
             {{#each books}}
             <a href="/{{name}}" title="{{title}}"><img src="{{image.dataUri}}" alt="{{title}} cover" height="90" width="60"></a>

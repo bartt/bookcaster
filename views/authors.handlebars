@@ -2,10 +2,7 @@
     {{#each authors}}
     <li>
         <a href="/author/{{name}}">
-        <span class="fa-stack">
-            <i class="fa fa-circle fa-stack-2x"></i>
-            <i class="fa fa-user fa-inverse fa-stack-1x"></i>
-        </span>{{name}}</a>
+        {{> author}}
         <blockquote>
             {{#each books}}
                 <a href="/{{name}}" title="{{title}}"><img src="{{image.dataUri}}" height="90" width="60" alt="{{title}} cover"></a>
