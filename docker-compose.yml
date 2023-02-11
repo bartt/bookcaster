@@ -1,13 +1,13 @@
-web:
-  environment:
-    - ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    - S3_ENDPOINT_URL=https://s3.us-west-1.wasabisys.com/
-    - AUDIO_BOOKS_USER
-    - AUDIO_BOOKS_PASSWORD
-  build: .
-  ports:
-    - "8080:8080"
-  volumes:
-    - .:/bookcaster
-  command: npm run dev:watch
+version: '3.9'
+services:
+  web:
+    env_file:
+      - .env
+    build: 
+      no_cache: true
+      context: . 
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/bookcaster/data
+    command: npm run start
