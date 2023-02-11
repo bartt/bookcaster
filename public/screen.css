@@ -99,6 +99,6 @@ body {
         flex-wrap: nowrap;
     }
     .summary {
-        margin-top: 1rem;
+        margin: 1rem 2rem 0 0;
     }        
 } 
