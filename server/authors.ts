@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
-import { AuthorRequestGeneric } from '../interfaces';
-import { Author } from '../models';
+import { AuthorRequestGeneric } from '../interfaces/index.js';
+import { Author } from '../models/index.js';
 
 const authors: FastifyPluginAsync = async (server: FastifyInstance): Promise<void> => {
   server.get('/authors', async (request, reply) => {

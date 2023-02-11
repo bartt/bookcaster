@@ -1,8 +1,8 @@
 import { GetObjectCommand, GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
-import { BookFeedRequestGeneric, FileRequestGeneric } from '../interfaces';
-import { Book } from '../models';
-import { s3Client, s3BaseConfig } from './s3-client';
+import { BookFeedRequestGeneric, FileRequestGeneric } from '../interfaces/index.js';
+import { Book } from '../models/index.js';
+import { s3Client, s3BaseConfig } from './s3-client.js';
 
 const books: FastifyPluginAsync = async (server: FastifyInstance): Promise<void> => {
 

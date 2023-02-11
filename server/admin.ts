@@ -5,7 +5,7 @@ import sizeOf from 'image-size';
 import ImageDataURI from 'image-data-uri';
 import { s3Client, s3BaseConfig } from './s3-client.js'
 import { Author, Book, Category, MediaFile } from '../models/index.js';
-import { SyncRequestGeneric } from '../interfaces';
+import { SyncRequestGeneric } from '../interfaces/index.js';
 
 // Maximum size to get all embeded media tags from a MP3/M4A media file. 
 const mediaTagMaxSize = 666 * 1024;

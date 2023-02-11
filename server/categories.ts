@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
-import { CategoryRequestGeneric } from '../interfaces';
-import { Category, Book } from '../models';
+import { CategoryRequestGeneric } from '../interfaces/index.js';
+import { Category, Book } from '../models/index.js';
 
 const categories: FastifyPluginAsync = async (server: FastifyInstance): Promise<void> => {
   server.get('/categories', async (request, reply) => {
