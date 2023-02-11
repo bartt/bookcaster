@@ -24,7 +24,6 @@ const books: FastifyPluginAsync = async (server: FastifyInstance): Promise<void>
           }],
           title: `${book.title} by ${(book.authors || []).map((author) => author.name).join(' & ') || 'Unknown Author'}`
         })
-        break
 
       case 'm3u':
         return reply.type('audio/x-mpegurl').m3u('views/m3u', {
@@ -38,7 +37,6 @@ const books: FastifyPluginAsync = async (server: FastifyInstance): Promise<void>
             })
           }
         })
-        break;
 
       case 'rss':
         const data = {
@@ -57,7 +55,6 @@ const books: FastifyPluginAsync = async (server: FastifyInstance): Promise<void>
         return reply.type('application/xml').rss('views/atom', {
           book: data
         })
-        break;
 
       case 'jpg':
       case 'jpeg':
@@ -69,11 +66,9 @@ const books: FastifyPluginAsync = async (server: FastifyInstance): Promise<void>
         const buffer = Buffer.from(await imageResponse.Body?.transformToByteArray() || [])
         reply.type(`image/${ext}`)
         return reply.send(buffer)
-        break;
 
       default:
         return `Unknown ${ext} for ${book.name}`
-        break;
     }
   })
 
