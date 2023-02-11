@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config()
+
 import { BaseModel as Model, ModelObject } from "./objection.js"
 import { Book } from "./book.js"
 import { JSONSchema, RelationMappings, RelationMappingsThunk } from "objection";

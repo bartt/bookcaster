@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config()
+
 import { BaseModel as Model, ModelObject } from "./objection.js";
 import { Author } from "./author.js";
 import { Category } from "./category.js";
