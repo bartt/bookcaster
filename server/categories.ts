@@ -25,7 +25,8 @@ const categories: FastifyPluginAsync = async (server: FastifyInstance): Promise<
     const booksSummed = books.map((book) => {
       return {
         ...book,
-        url: book.toUrl(request.protocol, request.hostname)
+        url: book.toUrl(request.protocol, request.hostname),
+        duration: book.duration()
       }
     })
     return reply.view('views/books', {
