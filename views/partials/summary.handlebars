@@ -1,0 +1,13 @@
+<div class="summary">
+  {{#if description}}
+  <div class="description">
+    {{{description}}}
+  </div>
+  {{/if}}
+  <h4>Written/performed by:</h4>
+  <ul class="authors">
+    {{#each authors}}
+      <li><a href="/author/{{name}}">{{name}}</a></li>
+    {{/each}}
+  </ul>
+</div>

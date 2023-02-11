@@ -29,6 +29,7 @@ const server: FastifyInstance = fastify({
       footer: "views/partials/footer.handlebars",
       authors: "views/partials/authors.handlebars",
       book: "views/partials/book.handlebars",
+      summary: "views/partials/summary.handlebars",
     },
     useHtmlMinifier: minifier,
     htmlMinifierOptions: {

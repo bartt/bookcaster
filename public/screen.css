@@ -8,7 +8,7 @@ body {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    align-items: baseline;
+    align-items: flex-start;
     justify-content: center;
     padding: 0;
 }
@@ -89,3 +89,16 @@ body {
 .header h1 {
     text-align: center;
 }
+
+.catalog.solo {
+    gap: 2rem;
+}
+
+@media (min-width: 720px) {
+    .catalog.solo {
+        flex-wrap: nowrap;
+    }
+    .summary {
+        margin-top: 1rem;
+    }        
+} 

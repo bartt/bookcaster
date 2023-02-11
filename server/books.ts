@@ -16,12 +16,12 @@ const books: FastifyPluginAsync = async (server: FastifyInstance): Promise<void>
     }
     switch (ext) {
       case '':
-        return reply.view('views/books', {
-          books: [{
+        return reply.view('views/book', {
+          book: {
             ...book,
             duration: book.duration(),
             url: book.toUrl(request.protocol, request.hostname),
-          }],
+          },
           title: `${book.title} by ${(book.authors || []).map((author) => author.name).join(' & ') || 'Unknown Author'}`
         })
 
