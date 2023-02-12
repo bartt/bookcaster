@@ -94,6 +94,11 @@ body {
     gap: 2rem;
 }
 
+/* On mobile devices, reduce space between .book and .summary to 10px and add 1rem whitespace left/right.  */
+.summary {
+    margin: -50px 1rem auto 1rem;
+}
+
 @media (min-width: 720px) {
     .catalog.solo {
         flex-wrap: nowrap;
