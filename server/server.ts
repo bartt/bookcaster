@@ -15,6 +15,7 @@ import { admin } from './admin.js';
 import { books } from './books.js';
 import { authors } from './authors.js';
 import { categories } from './categories.js';
+import { api } from './api.js';
 import { Author } from '../models/index.js';
 
 const server: FastifyInstance = fastify({
@@ -97,6 +98,9 @@ const server: FastifyInstance = fastify({
 .register(books)
 .register(authors)
 .register(categories)
+.register(api, {
+  prefix: '/api/v1'
+})
 
 server.after(() => {
   server.addHook('onRequest', server.basicAuth)
