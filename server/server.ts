@@ -101,6 +101,14 @@ server.after(() => {
   server.addHook('onRequest', server.basicAuth)
 })
 
+// Declare the new `@fastify/view` functions  
+declare module "fastify" {
+  interface FastifyReply {
+   m3u(page: string, data?: object): FastifyReply;
+   rss(page: string, data?: object): FastifyReply;
+  }
+}
+
 handlebars.registerHelper('formatDuration', (durationSec: number) => {
   const MINUTE = 60
   const HOUR = 60 * MINUTE
