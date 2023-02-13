@@ -36,6 +36,7 @@ const server: FastifyInstance = fastify({
       category: "views/partials/category.handlebars",
       stack: "views/partials/stack.handlebars",
       book: "views/partials/book.handlebars",
+      search: "views/partials/search.handlebars",
       summary: "views/partials/summary.handlebars",
     },
     useHtmlMinifier: minifier,

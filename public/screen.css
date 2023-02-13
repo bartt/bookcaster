@@ -4,7 +4,8 @@ body {
 
 .catalog,
 .header,
-.footer {
+.footer,
+.search {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -72,8 +73,8 @@ body {
     background-color: #000;
 }
 
-.footer a {
-    padding: 0 1rem;
+.footer {
+    gap: 1rem;
 }
 
 .authors li,
@@ -97,6 +98,16 @@ body {
 /* On mobile devices, reduce space between .book and .summary to 10px and add 1rem whitespace left/right.  */
 .summary {
     margin: -50px 1rem auto 1rem;
+}
+
+.search {
+    align-items: center;
+    gap: 1rem;
+}
+
+.search input {
+    max-width: 30rem;
+    width: 70%;
 }
 
 @media (min-width: 720px) {

@@ -103,15 +103,14 @@ const books: FastifyPluginAsync = async (server: FastifyInstance): Promise<void>
   server.get('/', async (request, reply) => {
     const books = await Book.query()
       .withGraphFetched('[files, authors, categories]');
-    const booksSummed = books.map((book) => {
-      return {
-        ...book,
-        duration: book.duration(),
-        url: book.toUrl(request.protocol, request.hostname)
-      }
-    })
     return reply.view('views/books', {
-      books: booksSummed,
+      books: books.map((book) => {
+        return {
+          ...book,
+          duration: book.duration(),
+          url: book.toUrl(request.protocol, request.hostname)
+        }
+      }),
       title: 'Audiobooks as Podcasts'
     })
   })  
