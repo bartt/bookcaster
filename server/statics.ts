@@ -1,22 +1,23 @@
-import { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import { FastifyPluginAsync } from 'fastify';
+import { readdir } from 'node:fs/promises'
+import { extname, join } from 'node:path'
 
-const statics: FastifyPluginAsync = async (server: FastifyInstance): Promise<void> => {
-  server.get('/screen.css', async (request, reply) => {
-    return reply.sendFile('screen.css', {
-      maxAge: '3600000' // In hour in ms!
-    })
-  })
+declare module statics {
+  export interface StaticsOptions {
+    root: string
+  }
+}
+const statics: FastifyPluginAsync<NonNullable<statics.StaticsOptions>> = async (server, options): Promise<void> => {
 
-  server.get('/launcher.js', async (request, reply) => {
-    return reply.sendFile('launcher.js', {
-      maxAge: '3600000' // 1 hour in ms!
-    })
-  })
-
-  for (const size of [20, 29, 40, 50, 58, 72, 76, 80, 100, 144, 152, 167]) {
-    server.get(`/favicon-${size}.png`, async (request, reply) => {
-      return reply.sendFile(request.routerPath, {
-        maxAge: '86400000' // 1 day in ms!
+  const files = await readdir(options.root)
+  for (const file of files) {
+    const maxAge = extname(file) == '.png'
+      ? 86400000 // 1 Day in ms
+      : 3600000; // 1 Hour in ms
+    console.log(file)
+    server.get(`/${file}`, async (request, reply) => {
+      return reply.sendFile(file, {
+        maxAge: maxAge
       })
     })
   }

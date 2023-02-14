@@ -18,10 +18,11 @@ import { categories } from './categories.js';
 import { api } from './api.js';
 import { Author } from '../models/index.js';
 
+const staticRoot = join(cwd(), 'dist/public')
 const server: FastifyInstance = fastify({
   logger: true
 }).register(fastifyStatic, {
-  root: join(cwd(), 'public')
+  root: staticRoot
 }).register(fastifyView, {
   engine: {
     handlebars: handlebars
@@ -92,7 +93,9 @@ const server: FastifyInstance = fastify({
   authenticate: {
     realm: "Protected Books"
   }
-}).register(statics)
+}).register(statics, {
+  root: staticRoot
+})
 .register(robots)
 .register(admin)
 .register(books)

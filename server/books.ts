@@ -111,8 +111,7 @@ const books: FastifyPluginAsync = async (server: FastifyInstance): Promise<void>
           url: book.toUrl(request.protocol, request.hostname)
         }
       }),
-      title: 'Audiobooks as Podcasts',
-      authorization: Buffer.from(`${process.env.AUDIO_BOOKS_USER}:${process.env.AUDIO_BOOKS_PASSWORD}`).toString('base64url')
+      title: 'Audiobooks as Podcasts'
     })
   })  
 }
