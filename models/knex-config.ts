@@ -5,8 +5,8 @@ const config = {
   },
   useNullAsDefault: true,
   migrations: {
-    directory: 'migrations',
-    extension: 'ts'
+    directory: 'dist/migrations',
+    extension: 'js'
   },
 }
 
