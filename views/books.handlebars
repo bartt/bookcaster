@@ -4,12 +4,8 @@
   {{> book}}
   {{/each}}
 </ul>
+<script>const corpus={{{corpus}}}</script>
 <script type="module">
-  import { Api } from '/api.js'
-  Api.fetch('books')
-    .then((books) => {
-      const pre = document.createElement('pre')
-      pre.textContent = JSON.stringify(books, null, 2)
-      document.body.append(pre)
-    })
+  import { Search } from '/search.js'
+  new Search(corpus).listen()
 </script>

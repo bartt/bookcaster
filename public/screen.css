@@ -110,6 +110,11 @@ body {
     width: 70%;
 }
 
+.hidden {
+    display: none;
+    visibility: hidden;
+}
+
 @media (min-width: 720px) {
     .catalog.solo {
         flex-wrap: nowrap;

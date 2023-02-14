@@ -111,9 +111,19 @@ const books: FastifyPluginAsync = async (server: FastifyInstance): Promise<void>
           url: book.toUrl(request.protocol, request.hostname)
         }
       }),
+      by: 'books',
+      corpus: JSON.stringify(books.map((book) => {
+        return {
+          id: book.id, 
+          title: book.title, 
+          description: book.description, 
+          authors: book.authors, 
+          categories: book.categories
+        }
+      })),
       title: 'Audiobooks as Podcasts'
     })
-  })  
+  })
 }
 
 export { books }
