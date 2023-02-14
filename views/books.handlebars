@@ -1,6 +1,38 @@
 {{> search}}
 <ul class="catalog">
-{{#each books}}
-    {{> book}}
-{{/each}}
+  {{#each books}}
+  {{> book}}
+  {{/each}}
 </ul>
+<script>
+  (async () => {
+    let result = [];
+    fetch('/api/v1/books', {
+      headers: {
+        Authorization: `Basic {{authorization}}`
+      }
+    }).then((response) => response.body)
+      .then((body) => body.getReader())
+      .then(async (reader) => {
+        await reader.read().then(function processResponse({ done, value }) {
+          if (done) {
+            console.log("Response complete")
+            return
+          }
+
+          // value for fetch streams is a Uint8Array
+          result.push(new TextDecoder().decode(value));
+
+          // Read some more, and call this function again
+          return reader.read().then(processResponse);
+        })
+        return result
+      })
+      .then((result) => {
+        const text = JSON.stringify(JSON.parse(result.join('')), null, 2)
+        let paragraph = document.createElement('pre')
+        paragraph.textContent = text
+        document.body.append(paragraph)
+      })
+  })()
+</script>
