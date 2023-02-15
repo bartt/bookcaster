@@ -22,15 +22,24 @@ const authors: FastifyPluginAsync = async (server: FastifyInstance): Promise<voi
     const books = await Author.relatedQuery('books')
       .for(author.id)
       .withGraphFetched('[files, authors, categories]')
-    const booksSummed = books.map((book) => {
-      return {
-        ...book,
-        duration: book.duration(),
-        url: book.toUrl(request.protocol, request.hostname)
-      }
-    })
     return reply.view('views/books', {
-      books: booksSummed,
+      books: books.map((book) => {
+        return {
+          ...book,
+          duration: book.duration(),
+          url: book.toUrl(request.protocol, request.hostname)
+        }
+      }),
+      by: 'books',
+      corpus: JSON.stringify(books.map((book) => {
+        return {
+          id: book.id, 
+          title: book.title, 
+          description: book.description, 
+          authors: book.authors, 
+          categories: book.categories
+        }
+      })),
       title: `Audiobooks by ${author.name}`
     })
   })

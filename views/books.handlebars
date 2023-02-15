@@ -4,8 +4,10 @@
   {{> book}}
   {{/each}}
 </ul>
+{{#if corpus}}
 <script>const corpus={{{corpus}}}</script>
 <script type="module">
   import { Search } from '/search.js'
   new Search(corpus).listen().loadQueryParam()
 </script>
+{{/if}}

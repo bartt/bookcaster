@@ -22,19 +22,27 @@ const categories: FastifyPluginAsync = async (server: FastifyInstance): Promise<
     const books = (await Category.relatedQuery('books')
       .for(category.id)
       .withGraphFetched('[files, authors, categories]') as Book[])
-    const booksSummed = books.map((book) => {
-      return {
-        ...book,
-        url: book.toUrl(request.protocol, request.hostname),
-        duration: book.duration()
-      }
-    })
     return reply.view('views/books', {
-      books: booksSummed,
+      books: books.map((book) => {
+        return {
+          ...book,
+          url: book.toUrl(request.protocol, request.hostname),
+          duration: book.duration()
+        }
+      }),
+      by: 'books',
+      corpus: JSON.stringify(books.map((book) => {
+        return {
+          id: book.id, 
+          title: book.title, 
+          description: book.description, 
+          authors: book.authors, 
+          categories: book.categories
+        }
+      })),
       title: `Audiobooks in the ${category.name} category`
     })
   })
-
 }
 
 export { categories }
