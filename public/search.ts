@@ -24,11 +24,12 @@ class Search {
   listen() {
     this.input?.addEventListener('input', (e) => {
       const phrase = e.target?.value
+      const expr = new RegExp(`${phrase}`, 'i')
       const hits = this.corpus.filter((book) => 
-        book.title.includes(phrase) || 
-        book.description?.includes(phrase) || 
-        book.authors.some((author => author.name.includes(phrase))) ||
-        book.categories.some((category) => category.name.includes(phrase)))
+        expr.test(book.title) || 
+        expr.test(book.description || '') || 
+        book.authors.some((author) => expr.test(author.name)) ||
+        book.categories.some((category) => expr.test(category.name)))
       const misses = this.corpus.filter((book) => !hits.includes(book))
       hits.forEach((book) => document.querySelectorAll(`#book-${book.id}`).forEach((element) => element.classList.remove('hidden')))
       misses.forEach((book) => document.querySelectorAll(`#book-${book.id}`).forEach((element) => element.classList.add('hidden')))
