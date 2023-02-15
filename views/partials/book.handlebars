@@ -1,5 +1,7 @@
 <li class="book" id="book-{{id}}">
+  {{#unless solo }}
   <a href="/{{name}}" title="{{title}} by {{> authors}}">
+  {{/unless}}
     {{#with image}}
     <img class="cover" src="{{dataUri}}" width="{{width}}" height="{{height}}" alt="{{title}} cover"/>
     {{/with}}
@@ -12,5 +14,7 @@
     <div class="duration">
       {{formatDuration duration}}
     </div>
+  {{#unless solo }}
   </a>
+  {{/unless}}
 </li>
