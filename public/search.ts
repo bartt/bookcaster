@@ -21,7 +21,7 @@ class Search {
     this.by = this.input?.getAttribute('data-by') || ''
   }
 
-  listen() {
+  listen(): Search {
     this.input?.addEventListener('input', (e) => {
       const phrase = e.target?.value
       const expr = new RegExp(`${phrase}`, 'i')
@@ -34,6 +34,17 @@ class Search {
       hits.forEach((book) => document.querySelectorAll(`#book-${book.id}`).forEach((element) => element.classList.remove('hidden')))
       misses.forEach((book) => document.querySelectorAll(`#book-${book.id}`).forEach((element) => element.classList.add('hidden')))
     })
+    return this
+  }
+
+  loadQueryParam(): Search {
+    const params = (new URL(document.location.href)).searchParams
+    const query = params.get('q')
+    if (query && this.input) {
+      this.input.setAttribute('value', query)
+      this.input.dispatchEvent(new Event('input'))
+    }
+    return this
   }
 }
 
