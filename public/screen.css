@@ -115,6 +115,10 @@ body {
     visibility: hidden;
 }
 
+[contenteditable='false']:hover {
+    background-color: rgb(214, 200, 245);
+}
+
 @media (min-width: 720px) {
     .catalog.solo {
         flex-wrap: nowrap;
