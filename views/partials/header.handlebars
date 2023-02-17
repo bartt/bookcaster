@@ -1,3 +1,8 @@
 <div class="header">
-    <h1 contenteditable="false">{{title}}</h1>
+    {{#if editable}}
+    <h1 contenteditable="{{editable}}">{{title}}</h1>    
+    {{/if}}
+    {{#unless editable}}
+    <h1>{{title}}</h1>           
+    {{/unless}}
 </div>
