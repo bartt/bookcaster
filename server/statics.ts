@@ -1,15 +1,15 @@
 import { FastifyPluginAsync } from 'fastify';
-import { readdir } from 'node:fs/promises'
-import { extname, join } from 'node:path'
+import { readdir } from 'node:fs/promises';
+import { extname } from 'node:path';
 
-declare module statics {
+declare namespace statics {
   export interface StaticsOptions {
     root: string
   }
 }
 const statics: FastifyPluginAsync<NonNullable<statics.StaticsOptions>> = async (server, options): Promise<void> => {
 
-  const files = await readdir(options.root)
+  const files = await readdir(options.root);
   for (const file of files) {
     const maxAge = extname(file) == '.png'
       ? 86400000 // 1 Day in ms
@@ -17,9 +17,9 @@ const statics: FastifyPluginAsync<NonNullable<statics.StaticsOptions>> = async (
     server.get(`/${file}`, async (request, reply) => {
       return reply.sendFile(file, {
         maxAge: maxAge
-      })
-    })
+      });
+    });
   }
-}
+};
 
-export { statics }
+export { statics };

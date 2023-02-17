@@ -1,9 +1,9 @@
-import { BaseModel as Model, ModelObject } from "./objection.js"
-import { Book } from "./book.js";
+import { BaseModel as Model, ModelObject } from './objection.js';
+import { Book } from './book.js';
 
 export class Category extends Model {
-  id!: number
-  name!: string
+  id!: number;
+  name!: string;
 
   static tableName = 'categories';
 
@@ -20,7 +20,7 @@ export class Category extends Model {
         to: 'books.id'
       }
     }
-  })
+  });
 }
 
 export type CategoryShape = ModelObject<Category>;

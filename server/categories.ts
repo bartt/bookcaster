@@ -10,25 +10,25 @@ const categories: FastifyPluginAsync = async (server: FastifyInstance): Promise<
     return reply.view('views/categories', {
       categories,
       title: 'Audiobooks by Category'
-    })
-  })
+    });
+  });
 
   server.get<CategoryRequestGeneric>('/category/:categoryName', async (request, reply) => {
     const category = await Category.query()
-      .findOne('name', 'like', request.params.categoryName)
+      .findOne('name', 'like', request.params.categoryName);
     if (!category) {
-      return "error"
+      return 'error';
     }
     const books = (await Category.relatedQuery('books')
       .for(category.id)
-      .withGraphFetched('[files, authors, categories]') as Book[])
+      .withGraphFetched('[files, authors, categories]') as Book[]);
     return reply.view('views/books', {
       books: books.map((book) => {
         return {
           ...book,
           url: book.toUrl(request.protocol, request.hostname),
           duration: book.duration()
-        }
+        };
       }),
       by: 'books',
       corpus: JSON.stringify(books.map((book) => {
@@ -38,11 +38,11 @@ const categories: FastifyPluginAsync = async (server: FastifyInstance): Promise<
           description: book.description, 
           authors: book.authors, 
           categories: book.categories
-        }
+        };
       })),
       title: `Audiobooks in the ${category.name} category`
-    })
-  })
-}
+    });
+  });
+};
 
-export { categories }
+export { categories };

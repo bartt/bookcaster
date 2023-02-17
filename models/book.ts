@@ -1,32 +1,32 @@
 import * as dotenv from 'dotenv';
-dotenv.config()
+dotenv.config();
 
-import { BaseModel as Model, ModelObject } from "./objection.js";
-import { Author } from "./author.js";
-import { Category } from "./category.js";
-import { CoverImage } from "./cover-image.js";
-import { MediaFile } from "./media-file.js";
+import { BaseModel as Model, ModelObject } from './objection.js';
+import { Author } from './author.js';
+import { Category } from './category.js';
+import { CoverImage } from './cover-image.js';
+import { MediaFile } from './media-file.js';
 
 export class Book extends Model {
-  id!: number
-  name!: string
-  title?: string
-  description?: string
-  authors?: Author[]
-  categories?: Category[]
-  image?: CoverImage
-  files?: MediaFile[]
+  id!: number;
+  name!: string;
+  title?: string;
+  description?: string;
+  authors?: Author[];
+  categories?: Category[];
+  image?: CoverImage;
+  files?: MediaFile[];
 
   duration(): number {
-    return (this.files || []).reduce((acc, file) => acc + file.duration, 0)
+    return (this.files || []).reduce((acc, file) => acc + file.duration, 0);
   }
 
   publication(): Date {
-    return (this.files || []).reduce((max: MediaFile, file: MediaFile) => max.date < file.date ? file : max).date || new Date()
+    return (this.files || []).reduce((max: MediaFile, file: MediaFile) => max.date < file.date ? file : max).date || new Date();
   }
 
   toUrl(protocol: string, hostname: string): string {
-    return `${protocol}://${process.env.AUDIO_BOOKS_USER}:${process.env.AUDIO_BOOKS_PASSWORD}@${hostname}/${this.name}`
+    return `${protocol}://${process.env.AUDIO_BOOKS_USER}:${process.env.AUDIO_BOOKS_PASSWORD}@${hostname}/${this.name}`;
   }
 
   static tableName = 'books';
@@ -85,7 +85,7 @@ export class Book extends Model {
         }
       }
     }
-  }
+  };
 
   static toTitle(name: string): string {
     return name
@@ -94,7 +94,7 @@ export class Book extends Model {
         value.length > 0
           ? value.charAt(0).toUpperCase() + value.slice(1)
           : value)
-      .join(' ')
+      .join(' ');
   }
 }
 

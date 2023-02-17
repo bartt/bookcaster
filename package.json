@@ -7,6 +7,8 @@
   "scripts": {
     "dev:tsc": "tsc --project tsconfig.json --watch --outdir dist",
     "dev:watch": "cp public/*.{css,js,png} dist/public && nodemon --loader ts-node/esm dist/index.js",
+    "dev:lint": "npx eslint --fix-dry-run .",
+    "dev:lint:fix": "npx eslint --fix .",
     "start": "node --loader ts-node/esm dist/index.js"
   },
   "repository": {
@@ -39,6 +41,9 @@
   "devDependencies": {
     "@types/html-minifier": "^4.0.2",
     "@types/node": "^18.11.18",
+    "@typescript-eslint/eslint-plugin": "^5.52.0",
+    "@typescript-eslint/parser": "^5.52.0",
+    "eslint": "^8.34.0",
     "nodemon": "^2.0.20",
     "typescript": "^4.9.4"
   }

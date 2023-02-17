@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
-dotenv.config()
+dotenv.config();
 
-import { S3Client } from "@aws-sdk/client-s3";
+import { S3Client } from '@aws-sdk/client-s3';
 
 const s3Client = new S3Client({
   credentials: {
@@ -10,10 +10,10 @@ const s3Client = new S3Client({
   },
   endpoint: process.env.S3_ENDPOINT,
   region: 'us-west-1'
-})
+});
 
 const s3BaseConfig = {
-  Bucket: "icloud",
-}
+  Bucket: 'icloud',
+};
 
-export { s3Client, s3BaseConfig }
+export { s3Client, s3BaseConfig };

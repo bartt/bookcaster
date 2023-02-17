@@ -9,26 +9,26 @@ const authors: FastifyPluginAsync = async (server: FastifyInstance): Promise<voi
       .withGraphFetched('[books]');
     return reply.view('views/authors', {
       authors,
-      title: `Audiobooks by Author`
-    })
-  })
+      title: 'Audiobooks by Author'
+    });
+  });
 
   server.get<AuthorRequestGeneric>('/author/:authorName', async (request, reply) => {
     const author = await Author.query()
-      .findOne('name', 'like', request.params.authorName)
+      .findOne('name', 'like', request.params.authorName);
     if (!author) {
-      return "error"
+      return 'error';
     }
     const books = await Author.relatedQuery('books')
       .for(author.id)
-      .withGraphFetched('[files, authors, categories]')
+      .withGraphFetched('[files, authors, categories]');
     return reply.view('views/books', {
       books: books.map((book) => {
         return {
           ...book,
           duration: book.duration(),
           url: book.toUrl(request.protocol, request.hostname)
-        }
+        };
       }),
       by: 'books',
       corpus: JSON.stringify(books.map((book) => {
@@ -38,11 +38,11 @@ const authors: FastifyPluginAsync = async (server: FastifyInstance): Promise<voi
           description: book.description, 
           authors: book.authors, 
           categories: book.categories
-        }
+        };
       })),
       title: `Audiobooks by ${author.name}`
-    })
-  })
-}
+    });
+  });
+};
 
-export { authors }
+export { authors };

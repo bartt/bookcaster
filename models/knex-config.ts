@@ -8,6 +8,6 @@ const config = {
     directory: 'dist/migrations',
     extension: 'js'
   },
-}
+};
 
-export default config
+export default config;
