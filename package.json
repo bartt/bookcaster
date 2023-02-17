@@ -6,7 +6,9 @@
   "main": "index.js",
   "scripts": {
     "dev:tsc": "tsc --project tsconfig.json --watch --outdir dist",
-    "dev:watch": "cp public/*.{css,js,png} dist/public && nodemon --loader ts-node/esm dist/index.js",
+    "dev:watch:public": "nodemon --exec 'cp -v public/*.{css,js,png} dist/public' --watch public --ext css,js,png",
+    "dev:watch:dist": "nodemon --loader ts-node/esm dist/index.js",
+    "dev:prettier": "prettier --config .prettierrc './**/*.ts'",
     "dev:prettier:format": "prettier --config .prettierrc './**/*.ts' --write",
     "dev:lint": "eslint . --fix-dry-run --ext .ts",
     "start": "node --loader ts-node/esm dist/index.js"
