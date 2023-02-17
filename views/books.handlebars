@@ -1,5 +1,5 @@
 {{> search}}
-<ul class="catalog">
+<ul class="catalog {{#if corpus}}hidden{{/if}}">
   {{#each books}}
   {{> book}}
   {{/each}}
@@ -7,7 +7,8 @@
 {{#if corpus}}
 <script>const corpus={{{corpus}}}</script>
 <script type="module">
-  import { Search } from '/search.js'
-  new Search(corpus).listen().loadQueryParam()
+  import { Search } from '/search.js';
+  new Search(corpus).listen().loadQueryParam();
+  document.querySelector('.catalog').classList.remove('hidden');
 </script>
 {{/if}}
