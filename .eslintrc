@@ -16,22 +16,35 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint", "prettier"],
-  "ignorePatterns": ["dist/**/*.js"],
+  "plugins": [
+    "@typescript-eslint",
+    "prettier"
+  ],
+  "ignorePatterns": [
+    "dist/**/*.js"
+  ],
   "rules": {
     "indent": "off",
-    "linebreak-style": ["error", "unix"],
-    "quotes": ["error", "single"],
-    "semi": ["error", "always"],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ],
+    "quotes": [
+      "error",
+      "single"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-namespace": "off",
     "no-case-declarations": "off",
-    "no-console": ["warn"],
+    "no-console": [
+      "warn"
+    ],
     "prettier/prettier": [
-      "error",
-      {
-        "usePrettierrc": true
-      }
+      "error"
     ]
   }
 }
