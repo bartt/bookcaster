@@ -14,7 +14,6 @@ const statics: FastifyPluginAsync<NonNullable<statics.StaticsOptions>> = async (
     const maxAge = extname(file) == '.png'
       ? 86400000 // 1 Day in ms
       : 3600000; // 1 Hour in ms
-    console.log(file)
     server.get(`/${file}`, async (request, reply) => {
       return reply.sendFile(file, {
         maxAge: maxAge
