@@ -29,7 +29,7 @@ const books: FastifyPluginAsync = async (
               url: book.toUrl(request.protocol, request.hostname),
             },
             title: `${book.title}`,
-            editable: true,
+            editable: false,
           });
 
         case 'm3u':
