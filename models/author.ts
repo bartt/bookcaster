@@ -5,7 +5,7 @@ export class Author extends Model {
   id!: number;
   name!: string;
   books?: Book[];
-  
+
   static tableName = 'authors';
 
   static relationMappings = () => ({
@@ -16,12 +16,12 @@ export class Author extends Model {
         from: 'authors.id',
         through: {
           from: 'books_authors.authorId',
-          to: 'books_authors.bookId'
+          to: 'books_authors.bookId',
         },
-        to: 'books.id'
-      }
-    }
+        to: 'books.id',
+      },
+    },
   });
 }
 
-export type AuthorShape = ModelObject<Author>
+export type AuthorShape = ModelObject<Author>;

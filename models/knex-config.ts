@@ -6,7 +6,7 @@ const config = {
   useNullAsDefault: true,
   migrations: {
     directory: 'dist/migrations',
-    extension: 'js'
+    extension: 'js',
   },
 };
 

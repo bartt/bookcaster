@@ -15,4 +15,3 @@ class BaseModel extends Model {
 }
 
 export { BaseModel, ModelObject, knex, config };
-

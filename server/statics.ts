@@ -4,19 +4,22 @@ import { extname } from 'node:path';
 
 declare namespace statics {
   export interface StaticsOptions {
-    root: string
+    root: string;
   }
 }
-const statics: FastifyPluginAsync<NonNullable<statics.StaticsOptions>> = async (server, options): Promise<void> => {
-
+const statics: FastifyPluginAsync<NonNullable<statics.StaticsOptions>> = async (
+  server,
+  options
+): Promise<void> => {
   const files = await readdir(options.root);
   for (const file of files) {
-    const maxAge = extname(file) == '.png'
-      ? 86400000 // 1 Day in ms
-      : 3600000; // 1 Hour in ms
+    const maxAge =
+      extname(file) == '.png'
+        ? 86400000 // 1 Day in ms
+        : 3600000; // 1 Hour in ms
     server.get(`/${file}`, async (request, reply) => {
       return reply.sendFile(file, {
-        maxAge: maxAge
+        maxAge: maxAge,
       });
     });
   }

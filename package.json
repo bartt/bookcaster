@@ -7,8 +7,8 @@
   "scripts": {
     "dev:tsc": "tsc --project tsconfig.json --watch --outdir dist",
     "dev:watch": "cp public/*.{css,js,png} dist/public && nodemon --loader ts-node/esm dist/index.js",
-    "dev:lint": "npx eslint --fix-dry-run .",
-    "dev:lint:fix": "npx eslint --fix .",
+    "dev:prettier:format": "prettier --config .prettierrc './**/*.ts' --write",
+    "dev:lint": "eslint . --fix-dry-run --ext .ts",
     "start": "node --loader ts-node/esm dist/index.js"
   },
   "repository": {
@@ -44,7 +44,10 @@
     "@typescript-eslint/eslint-plugin": "^5.52.0",
     "@typescript-eslint/parser": "^5.52.0",
     "eslint": "^8.34.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "nodemon": "^2.0.20",
+    "prettier": "^2.8.4",
     "typescript": "^4.9.4"
   }
 }

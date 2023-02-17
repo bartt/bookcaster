@@ -22,7 +22,11 @@ export class Book extends Model {
   }
 
   publication(): Date {
-    return (this.files || []).reduce((max: MediaFile, file: MediaFile) => max.date < file.date ? file : max).date || new Date();
+    return (
+      (this.files || []).reduce((max: MediaFile, file: MediaFile) =>
+        max.date < file.date ? file : max
+      ).date || new Date()
+    );
   }
 
   toUrl(protocol: string, hostname: string): string {
@@ -39,10 +43,10 @@ export class Book extends Model {
         from: 'books.id',
         through: {
           from: 'books_authors.bookId',
-          to: 'books_authors.authorId'
+          to: 'books_authors.authorId',
         },
-        to: 'authors.id'
-      }
+        to: 'authors.id',
+      },
     },
     categories: {
       relation: Model.ManyToManyRelation,
@@ -51,19 +55,19 @@ export class Book extends Model {
         from: 'books.id',
         through: {
           from: 'books_categories.bookId',
-          to: 'books_categories.categoryId'
+          to: 'books_categories.categoryId',
         },
-        to: 'categories.id'
-      }
+        to: 'categories.id',
+      },
     },
     files: {
       relation: Model.HasManyRelation,
       modelClass: MediaFile,
       join: {
         from: 'books.id',
-        to: 'files.bookId'
-      }
-    }
+        to: 'files.bookId',
+      },
+    },
   });
 
   static jsonSchema = {
@@ -81,10 +85,10 @@ export class Book extends Model {
           size: { type: 'integer' },
           height: { type: 'integer' },
           width: { type: 'integer' },
-          dataUri: { type: ['string', 'null'] }
-        }
-      }
-    }
+          dataUri: { type: ['string', 'null'] },
+        },
+      },
+    },
   };
 
   static toTitle(name: string): string {
@@ -93,7 +97,8 @@ export class Book extends Model {
       .map((value) =>
         value.length > 0
           ? value.charAt(0).toUpperCase() + value.slice(1)
-          : value)
+          : value
+      )
       .join(' ');
   }
 }

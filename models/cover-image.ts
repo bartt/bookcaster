@@ -14,10 +14,15 @@ export class CoverImage {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static fromJson(json: any): CoverImage {
-    const coverImage = new CoverImage(json.name, json.size, json.height, json.width);
+    const coverImage = new CoverImage(
+      json.name,
+      json.size,
+      json.height,
+      json.width
+    );
     if (json.dataUri) {
       coverImage.dataUri = json.dataUri;
     }
     return coverImage;
-  } 
+  }
 }

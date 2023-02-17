@@ -20,99 +20,109 @@ import { Author } from '../models/index.js';
 
 const staticRoot = join(cwd(), 'dist/public');
 const server: FastifyInstance = fastify({
-  logger: true
-}).register(fastifyStatic, {
-  root: staticRoot
-}).register(fastifyView, {
-  engine: {
-    handlebars: handlebars
-  },
-  layout: 'views/layouts/main.handlebars',
-  viewExt: 'handlebars',
-  options: {
-    partials: {
-      header: 'views/partials/header.handlebars',
-      footer: 'views/partials/footer.handlebars',
-      authors: 'views/partials/authors.handlebars',
-      author: 'views/partials/author.handlebars',
-      category: 'views/partials/category.handlebars',
-      stack: 'views/partials/stack.handlebars',
-      book: 'views/partials/book.handlebars',
-      search: 'views/partials/search.handlebars',
-      summary: 'views/partials/summary.handlebars',
+  logger: true,
+})
+  .register(fastifyStatic, {
+    root: staticRoot,
+  })
+  .register(fastifyView, {
+    engine: {
+      handlebars: handlebars,
     },
-    useHtmlMinifier: minifier,
-    htmlMinifierOptions: {
-      removeComments: true,
-      removeCommentsFromCDATA: true,
-      collapseWhitespace: true,
-      collapseBooleanAttributes: true,
-      removeAttributeQuotes: true,
-      removeEmptyAttributes: true
-    }
-  }
-}).register(fastifyView, {
-  engine: {
-    handlebars: handlebars
-  },
-  layout: 'views/layouts/plain.handlebars',
-  viewExt: 'handlebars',
-  options: {
-    partials: {
-      authors: 'views/partials/authors.handlebars',
+    layout: 'views/layouts/main.handlebars',
+    viewExt: 'handlebars',
+    options: {
+      partials: {
+        header: 'views/partials/header.handlebars',
+        footer: 'views/partials/footer.handlebars',
+        authors: 'views/partials/authors.handlebars',
+        author: 'views/partials/author.handlebars',
+        category: 'views/partials/category.handlebars',
+        stack: 'views/partials/stack.handlebars',
+        book: 'views/partials/book.handlebars',
+        search: 'views/partials/search.handlebars',
+        summary: 'views/partials/summary.handlebars',
+      },
+      useHtmlMinifier: minifier,
+      htmlMinifierOptions: {
+        removeComments: true,
+        removeCommentsFromCDATA: true,
+        collapseWhitespace: true,
+        collapseBooleanAttributes: true,
+        removeAttributeQuotes: true,
+        removeEmptyAttributes: true,
+      },
     },
-    useHtmlMinifier: minifier,
-    htmlMinifierOptions: {
-      removeComments: true,
-      removeCommentsFromCDATA: true,
-      collapseWhitespace: true,
-      collapseBooleanAttributes: true,
-      removeAttributeQuotes: true,
-      removeEmptyAttributes: true
-    }
-  },
-  propertyName: 'rss'
-}).register(fastifyView, {
-  engine: {
-    handlebars: handlebars
-  },
-  layout: 'views/layouts/plain.handlebars',
-  viewExt: 'handlebars',
-  options: {
-    partials: {
-      authors: 'views/partials/authors.handlebars',
-    }
-  },
-  propertyName: 'm3u'
-}).register(fastifyBasicAuth, {
-  validate: async function (username, password, request, reply) {
-    if (username !== process.env.AUDIO_BOOKS_USER || password !== process.env.AUDIO_BOOKS_PASSWORD) {
-      return new Error('No books for you!');
-    }
-  },
-  authenticate: {
-    realm: 'Protected Books'
-  }
-}).register(statics, {
-  root: staticRoot
-}).register(robots)
+  })
+  .register(fastifyView, {
+    engine: {
+      handlebars: handlebars,
+    },
+    layout: 'views/layouts/plain.handlebars',
+    viewExt: 'handlebars',
+    options: {
+      partials: {
+        authors: 'views/partials/authors.handlebars',
+      },
+      useHtmlMinifier: minifier,
+      htmlMinifierOptions: {
+        removeComments: true,
+        removeCommentsFromCDATA: true,
+        collapseWhitespace: true,
+        collapseBooleanAttributes: true,
+        removeAttributeQuotes: true,
+        removeEmptyAttributes: true,
+      },
+    },
+    propertyName: 'rss',
+  })
+  .register(fastifyView, {
+    engine: {
+      handlebars: handlebars,
+    },
+    layout: 'views/layouts/plain.handlebars',
+    viewExt: 'handlebars',
+    options: {
+      partials: {
+        authors: 'views/partials/authors.handlebars',
+      },
+    },
+    propertyName: 'm3u',
+  })
+  .register(fastifyBasicAuth, {
+    validate: async function (username, password, request, reply) {
+      if (
+        username !== process.env.AUDIO_BOOKS_USER ||
+        password !== process.env.AUDIO_BOOKS_PASSWORD
+      ) {
+        return new Error('No books for you!');
+      }
+    },
+    authenticate: {
+      realm: 'Protected Books',
+    },
+  })
+  .register(statics, {
+    root: staticRoot,
+  })
+  .register(robots)
   .register(admin)
   .register(books)
   .register(authors)
   .register(categories)
   .register(api, {
-    prefix: '/api/v1'
+    prefix: '/api/v1',
   });
 
 server.after(() => {
   server.addHook('onRequest', server.basicAuth);
 });
 
-// Declare the new `@fastify/view` functions  
+// Declare the new `@fastify/view` functions
 declare module 'fastify' {
   interface FastifyReply {
-   m3u(page: string, data?: object): FastifyReply;
-   rss(page: string, data?: object): FastifyReply;
+    m3u(page: string, data?: object): FastifyReply;
+    rss(page: string, data?: object): FastifyReply;
   }
 }
 
@@ -134,14 +144,26 @@ handlebars.registerHelper('formatDuration', (durationSec: number) => {
   return duration.join(':');
 });
 
-handlebars.registerHelper('round', (durationSec: number): number => Math.round(durationSec));
+handlebars.registerHelper('round', (durationSec: number): number =>
+  Math.round(durationSec)
+);
 
-handlebars.registerHelper('join', (authors: Array<Author>, separator = ', '): string => authors.map((author) => author.name).join(separator));
+handlebars.registerHelper(
+  'join',
+  (authors: Array<Author>, separator = ', '): string =>
+    authors.map((author) => author.name).join(separator)
+);
 
-handlebars.registerHelper('blankGuard', (value: string, guard: string) => !value || value.length == 0 ? guard : value);
+handlebars.registerHelper('blankGuard', (value: string, guard: string) =>
+  !value || value.length == 0 ? guard : value
+);
 
-handlebars.registerHelper('toUTCString', (date: number): string => new Date(date).toUTCString());
+handlebars.registerHelper('toUTCString', (date: number): string =>
+  new Date(date).toUTCString()
+);
 
-handlebars.registerHelper('toItpc', (url: string) => url.replace(/^https?/, 'itpc'));
+handlebars.registerHelper('toItpc', (url: string) =>
+  url.replace(/^https?/, 'itpc')
+);
 
 export { server };

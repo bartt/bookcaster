@@ -15,11 +15,11 @@ export class Category extends Model {
         from: 'categories.id',
         through: {
           from: 'books_categories.categoryId',
-          to: 'books_categories.bookId'
+          to: 'books_categories.bookId',
         },
-        to: 'books.id'
-      }
-    }
+        to: 'books.id',
+      },
+    },
   });
 }
 

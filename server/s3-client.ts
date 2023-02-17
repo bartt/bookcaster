@@ -9,7 +9,7 @@ const s3Client = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
   },
   endpoint: process.env.S3_ENDPOINT,
-  region: 'us-west-1'
+  region: 'us-west-1',
 });
 
 const s3BaseConfig = {

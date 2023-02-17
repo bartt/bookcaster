@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { knex, config } from './models/index.js';
 import { server } from './server/index.js';
 

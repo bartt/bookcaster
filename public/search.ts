@@ -2,11 +2,11 @@ import { Author, Category } from '../models';
 
 declare namespace Search {
   export interface Book {
-    id: number,
-    title: string,
-    description?: string,
-    authors: Author[],
-    categories: Category[]
+    id: number;
+    title: string;
+    description?: string;
+    authors: Author[];
+    categories: Category[];
   }
 }
 
@@ -44,21 +44,31 @@ class Search {
         window.history.pushState({}, '', url);
       }
       const expr = new RegExp(`${phrase}`, 'i');
-      const hits = this.corpus.filter((book) =>
-        expr.test(book.title) ||
-        expr.test(book.description || '') ||
-        book.authors.some((author) => expr.test(author.name)) ||
-        book.categories.some((category) => expr.test(category.name)));
+      const hits = this.corpus.filter(
+        (book) =>
+          expr.test(book.title) ||
+          expr.test(book.description || '') ||
+          book.authors.some((author) => expr.test(author.name)) ||
+          book.categories.some((category) => expr.test(category.name))
+      );
       const misses = this.corpus.filter((book) => !hits.includes(book));
-      hits.forEach((book) => document.querySelectorAll(`#book-${book.id}`).forEach((element) => element.classList.remove('hidden')));
-      misses.forEach((book) => document.querySelectorAll(`#book-${book.id}`).forEach((element) => element.classList.add('hidden')));
+      hits.forEach((book) =>
+        document
+          .querySelectorAll(`#book-${book.id}`)
+          .forEach((element) => element.classList.remove('hidden'))
+      );
+      misses.forEach((book) =>
+        document
+          .querySelectorAll(`#book-${book.id}`)
+          .forEach((element) => element.classList.add('hidden'))
+      );
     });
     window.onpopstate = this.loadQueryParam.bind(this);
     return this;
   }
 
   loadQueryParam(e: Event | null) {
-    const params = (new URL(document.location.href)).searchParams;
+    const params = new URL(document.location.href).searchParams;
     const query = params.get('q');
     if (this.input) {
       this.input.value = query || '';

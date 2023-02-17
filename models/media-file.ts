@@ -24,10 +24,10 @@ export class MediaFile extends Model {
       modelClass: Book,
       join: {
         from: 'files.bookId',
-        to: 'books.id'
-      }
-    }
+        to: 'books.id',
+      },
+    },
   });
 }
 
-export type MediaFileShape = ModelObject<MediaFile>
+export type MediaFileShape = ModelObject<MediaFile>;

@@ -18,9 +18,17 @@ export async function up(knex: Knex): Promise<Knex.SchemaBuilder> {
     .createTable('books_authors', (table) => {
       table.increments('id').primary();
       table.integer('bookId').unsigned().index();
-      table.foreign('bookId').references('books.id').withKeyName('fk_books').onDelete('CASCADE');
+      table
+        .foreign('bookId')
+        .references('books.id')
+        .withKeyName('fk_books')
+        .onDelete('CASCADE');
       table.integer('authorId').unsigned().index();
-      table.foreign('authorId').references('authors.id').withKeyName('fk_authors').onDelete('CASCADE');
+      table
+        .foreign('authorId')
+        .references('authors.id')
+        .withKeyName('fk_authors')
+        .onDelete('CASCADE');
       table.unique(['bookId', 'authorId']);
     })
     .createTable('categories', (table) => {
@@ -31,9 +39,17 @@ export async function up(knex: Knex): Promise<Knex.SchemaBuilder> {
     .createTable('books_categories', (table) => {
       table.increments('id').primary();
       table.integer('bookId').unsigned().index();
-      table.foreign('bookId').references('books.id').withKeyName('fk_books').onDelete('CASCADE');
+      table
+        .foreign('bookId')
+        .references('books.id')
+        .withKeyName('fk_books')
+        .onDelete('CASCADE');
       table.integer('categoryId').unsigned().index();
-      table.foreign('categoryId').references('categories.id').withKeyName('fk_categories').onDelete('CASCADE');
+      table
+        .foreign('categoryId')
+        .references('categories.id')
+        .withKeyName('fk_categories')
+        .onDelete('CASCADE');
       table.unique(['bookId', 'categoryId']);
     })
     .createTable('files', (table) => {
