@@ -1,4 +1,5 @@
 import { digestMessage } from './crypto.js';
+import { Api } from './api.js';
 
 class Edit {
   static handleClick() {
@@ -42,12 +43,26 @@ class Edit {
           item.removeAttribute('data-checksum');
           const newSha1 = await digestMessage(item.innerHTML);
           if (oldSha1 != newSha1) {
+            const bookElement = document.querySelector('.book');
+            if (!bookElement) {
+              // There always should be a book. Escape hatch.
+              return;
+            }
+            const bookId = bookElement.id.split('-').pop();
             const field = item.getAttribute('data-field');
+            if (!field) {
+              return;
+            }
             const value = item.innerHTML;
             // Bring up saving notification
-            alert(`SAVE: ${oldSha1}/${newSha1}: ${field} = ${value}`);
+            // alert(`SAVE ${bookId}: ${oldSha1}/${newSha1}: ${field} = ${value}`);
             // Save the changes to the DB.
-            // Hide saving alert when done.
+            const response = await Api.update(`book/${bookId}`, {
+              field,
+              value,
+            });
+            // Hide saving alert when done and update the editable field with the saved value.
+            item.innerHTML = response[field];
           }
         });
     });

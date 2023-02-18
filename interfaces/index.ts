@@ -31,3 +31,13 @@ export interface SyncRequestGeneric extends RequestGenericInterface {
     addOnly: boolean;
   };
 }
+
+export interface ApiBookRequestGeneric extends RequestGenericInterface {
+  Params: {
+    bookId: number;
+  };
+  Body: {
+    field: string;
+    value: string;
+  };
+}

@@ -1,9 +1,6 @@
-import { GetObjectCommand, GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
-import {
-  BookFeedRequestGeneric,
-  FileRequestGeneric,
-} from '../interfaces/index.js';
+import { decode } from 'html-entities';
+import { ApiBookRequestGeneric } from '../interfaces/index.js';
 import { Book } from '../models/index.js';
 import { join } from 'node:path';
 
@@ -31,6 +28,23 @@ const api: FastifyPluginAsync = async (
     reply.raw.write(']');
     reply.raw.end();
   });
+
+  server.post<ApiBookRequestGeneric>(
+    '/book/:bookId',
+    async (request, reply) => {
+      const bookId = request.params.bookId;
+      const data = request.body;
+      const field = data.field;
+      const value = decode(data.value)
+        .trim()
+        .replace(/\n/g, '')
+        .replace(/(?:\s)\s+/, '');
+      const model = {};
+      model[field] = value;
+      const book = await Book.query().patchAndFetchById(bookId, model);
+      return model;
+    }
+  );
 };
 
 export { api };
