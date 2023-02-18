@@ -1,6 +1,6 @@
 <div class="header">
     {{#if editable}}
-    <h1 contenteditable="{{editable}}">{{title}}</h1>    
+    <h1 data-field="title" contenteditable="{{editable}}">{{title}}</h1>    
     {{/if}}
     {{#unless editable}}
     <h1>{{title}}</h1>           

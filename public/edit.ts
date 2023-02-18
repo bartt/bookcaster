@@ -42,8 +42,10 @@ class Edit {
           item.removeAttribute('data-checksum');
           const newSha1 = await digestMessage(item.innerHTML);
           if (oldSha1 != newSha1) {
+            const field = item.getAttribute('data-field');
+            const value = item.innerHTML;
             // Bring up saving notification
-            alert(`SAVE: ${oldSha1}/${newSha1} = ${item.innerHTML}`);
+            alert(`SAVE: ${oldSha1}/${newSha1}: ${field} = ${value}`);
             // Save the changes to the DB.
             // Hide saving alert when done.
           }
