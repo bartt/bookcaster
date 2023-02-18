@@ -5,7 +5,7 @@ COPY package.json /bookcaster/
 COPY dist/ /bookcaster/dist/
 COPY views/ /bookcaster/views/
 RUN mkdir /bookcaster/data 
-RUN cd /bookcaster && npm install && apk add sqlite
+RUN cd /bookcaster && npm install --omit dev --omit optional --omit peer && apk add sqlite
 
 WORKDIR /bookcaster
 VOLUME [ "/bookcaster/data" ]
