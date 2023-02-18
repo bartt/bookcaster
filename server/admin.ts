@@ -323,6 +323,14 @@ const admin: FastifyPluginAsync = async (
                 (await imageResponse.Body?.transformToByteArray()) || []
               );
               const imageSize = sizeOf(imageBuffer);
+              if (
+                book.image &&
+                (book.image.height == imageSize.height ||
+                  book.image.width == imageSize.width)
+              ) {
+                reply.raw.write(`Skipping unchanged ${fileName}.\n`);
+                continue;
+              }
               const imageDataUri = ImageDataURI.encode(
                 imageBuffer,
                 imageSize.type
