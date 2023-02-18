@@ -15,7 +15,9 @@ class Launcher {
   }
 
   static #iOSVersion() {
-    return Launcher.#isIOS() ? parseInt(userAgent.match(IOS_VERSION_RE)[1], 10) : 0;
+    return Launcher.#isIOS()
+      ? parseInt(userAgent.match(IOS_VERSION_RE)[1], 10)
+      : 0;
   }
 
   static #isChrome() {
@@ -42,7 +44,6 @@ class Launcher {
 
   // Stop any running timers.
   clearTimers() {
-    console.log('Clearing timers: [' + this.timers.join(', ') + ']');
     this.timers.map(clearTimeout);
     this.timers = [];
   }
@@ -63,17 +64,25 @@ class Launcher {
     setTimeout(() => {
       let fallbackLaunched = false;
       let gotFallback = 'string' == typeof fallback;
-      gotFallback && this.timers.push(setTimeout(() => {
-        fallbackLaunched = true;
-        window.top.location = fallback;
-      }, 1 * SECOND));
-      Launcher.#isIOS() && this.timers.push(window.setTimeout(() => {
-        fallbackLaunched && window.location.reload();
-      }, 2 * SECOND));
+      gotFallback &&
+        this.timers.push(
+          setTimeout(() => {
+            fallbackLaunched = true;
+            window.top.location = fallback;
+          }, 1 * SECOND)
+        );
+      Launcher.#isIOS() &&
+        this.timers.push(
+          window.setTimeout(() => {
+            fallbackLaunched && window.location.reload();
+          }, 2 * SECOND)
+        );
       window.location = deeplink;
     }, 0 * SECOND);
   }
 }
 
 const launcher = new Launcher();
-document.querySelectorAll('.feed').forEach((feed) => feed.addEventListener('click', launcher));
+document
+  .querySelectorAll('.feed')
+  .forEach((feed) => feed.addEventListener('click', launcher));
