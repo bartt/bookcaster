@@ -24,4 +24,4 @@ export class Author extends Model {
   });
 }
 
-export type AuthorShape = ModelObject<Author>;
+export type AuthorShape = typeof ModelObject<Author>;

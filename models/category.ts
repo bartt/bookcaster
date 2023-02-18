@@ -23,4 +23,4 @@ export class Category extends Model {
   });
 }
 
-export type CategoryShape = ModelObject<Category>;
+export type CategoryShape = typeof ModelObject<Category>;

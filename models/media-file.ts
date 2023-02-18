@@ -30,4 +30,4 @@ export class MediaFile extends Model {
   });
 }
 
-export type MediaFileShape = ModelObject<MediaFile>;
+export type MediaFileShape = typeof ModelObject<MediaFile>;

@@ -13,9 +13,9 @@ class Edit {
         element.focus();
         return;
       }
-      // New lines add new nodes inside the editable content. Clicks on children 
+      // New lines add new nodes inside the editable content. Clicks on children
       // make the editable content edtibable again.
-      const ancestor = element.closest('[contenteditable]');
+      const ancestor = element.closest('[contenteditable]') as HTMLElement;
       if (ancestor && !ancestor.isContentEditable) {
         ancestor.setAttribute('contenteditable', 'true');
         return;

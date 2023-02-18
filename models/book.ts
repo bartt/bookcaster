@@ -103,5 +103,5 @@ export class Book extends Model {
   }
 }
 
-export type BookShape = ModelObject<Book>;
+export type BookShape = typeof ModelObject<Book>;
 export default Book;
