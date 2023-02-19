@@ -1,129 +1,193 @@
 body {
-    font-family: sans-serif;
+  font-family: sans-serif;
 }
 
 .catalog,
 .header,
 .footer,
 .search {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0;
+}
+
+.header h1 {
+  padding: 0.5rem 1rem;
 }
 
 .book {
-    list-style: none;
-    position: relative;
-    width: 240px;
-    margin: 10px 10px 60px 10px;
-    text-align: center;
+  list-style: none;
+  position: relative;
+  width: 240px;
+  margin: 10px 10px 60px 10px;
+  text-align: center;
 }
 
 .cover {
-    max-width: 240px;
-    max-height: 360px;
+  max-width: 240px;
+  max-height: 360px;
 }
 
 .feed {
-    position: absolute;
-    bottom: 80px;
-    left: 33%;
-    color: rgba(0, 0, 0, 0.4);
-    font-size: 200%;
+  position: absolute;
+  bottom: 80px;
+  left: 33%;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 200%;
 }
 
 .book:hover .feed,
 .book:focus .feed {
-    color: rgb(0, 0, 0);
+  color: rgb(0, 0, 0);
 }
 
 .play {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    color: rgba(0, 0, 0, .4);
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: rgba(0, 0, 0, 0.4);
 }
 
 .play .fa-play {
-    left: 1px;
+  left: 1px;
 }
 
 .book:hover .play,
 .book.focus .play {
-    color: rgb(0, 0, 0);
+  color: rgb(0, 0, 0);
 }
 
 .duration {
-    bottom: 21px;
-    right: 20px;
-    position: absolute;
-    font-weight: bold;
-    color: rgb(255, 255, 255);
-    font-size: 120%;
-    padding: 4px 6px;
-    border-radius: 8px;
-    background-color: rgba(0, 0, 0, .4);
+  bottom: 21px;
+  right: 20px;
+  position: absolute;
+  font-weight: bold;
+  color: rgb(255, 255, 255);
+  font-size: 120%;
+  padding: 4px 6px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .book:hover .duration,
 .book:focus .duration {
-    background-color: #000;
+  background-color: #000;
 }
 
 .footer {
-    gap: 1rem;
+  gap: 1rem;
 }
 
 .authors li,
 .categories li {
-    list-style: none;
+  list-style: none;
 }
 
 .authors .fa-stack,
 .categories .fa-stack {
-    margin-right: .5rem;
+  margin-right: 0.5rem;
 }
 
 .header h1 {
-    text-align: center;
+  text-align: center;
 }
 
 .catalog.solo {
-    gap: 2rem;
+  gap: 2rem;
 }
 
 /* On mobile devices, reduce space between .book and .summary to 10px and add 1rem whitespace left/right.  */
 .summary {
-    margin: -50px 1rem auto 1rem;
+  margin: -50px 1rem auto 1rem;
 }
 
 .search {
-    align-items: center;
-    gap: 1rem;
+  align-items: center;
+  gap: 1rem;
 }
 
 .search input {
-    max-width: 30rem;
-    width: 70%;
+  max-width: 30rem;
+  width: 70%;
 }
 
 .hidden {
-    display: none;
-    visibility: hidden;
+  display: none;
+  visibility: hidden;
 }
 
-[contenteditable='false']:hover {
-    background-color: rgb(214, 200, 245);
+[contenteditable] {
+  position: relative;
+}
+
+[contenteditable]::before {
+  border: transparent solid 2px;
+  border-radius: 0.3rem;
+}
+
+[contenteditable='false']:hover::before {
+  background-color: rgb(244, 244, 244);
+  border-color: rgb(224, 224, 224);
+  position: absolute;
+  top: -0.25rem;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  content: '';
+  z-index: -1;
+}
+
+[contenteditable='false']:hover::after {
+  position: absolute;
+  content: '\f044';
+  font-family: 'FontAwesome';
+  font-size: 60%;
+  color: rgb(224, 224, 224);
+  top: 0.15rem;
+  right: 0;
+}
+
+.description {
+  padding: 1rem 0 1rem 0;
+}
+
+.description[contenteditable='false']:hover::before {
+  width: calc(100% + 1.5rem);
+  left: -1rem;
+}
+
+.description[contenteditable='false']:hover::after {
+  font-size: larger;
+  top: 0.5rem;
+  right: 0;
 }
 
 @media (min-width: 720px) {
-    .catalog.solo {
-        flex-wrap: nowrap;
-    }
-    .summary {
-        margin: 1rem 2rem 0 0;
-    }        
-} 
+  .catalog.solo {
+    flex-wrap: nowrap;
+  }
+
+  .header h1 {
+    padding: 0.5rem 2rem;
+  }
+
+  .description[contenteditable='false']:hover::before {
+    width: 100%;
+  }
+
+  .description[contenteditable='false']:hover::after {
+    right: 1.5rem;
+  }
+
+  .summary {
+    margin-top: 0;
+    margin-right: 1rem;
+  }
+
+  .description {
+    padding: 1rem 2rem 1rem 0;
+  }
+}
