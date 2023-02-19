@@ -38,6 +38,7 @@ const api: FastifyPluginAsync = async (
       const value = decode(data.value)
         .trim()
         .replace(/\n/g, '')
+        .replace(/<br>$/, '')
         .replace(/(?:\s)\s+/, '');
       const model = {};
       model[field] = value;
