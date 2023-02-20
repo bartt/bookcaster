@@ -170,6 +170,10 @@ body {
   width: 70%;
 }
 
+.search .fa-stack {
+  color: var(--feed-icon-color)
+}
+
 .hidden {
   display: none;
   visibility: hidden;
