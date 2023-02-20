@@ -1,3 +1,11 @@
+:root {
+  --editable-border-color: rgb(224, 224, 224);
+  --editable-background-color: rgb(244, 244, 244);
+  --feed-icon-color: rgba(0, 0, 0, 0.4);
+  --feed-icon-text-color: rgb(255, 255, 255);
+  --feed-icon-color-focus: rgb(0, 0, 0);
+}
+
 body {
   font-family: sans-serif;
 }
@@ -35,20 +43,20 @@ body {
   position: absolute;
   bottom: 80px;
   left: 33%;
-  color: rgba(0, 0, 0, 0.4);
+  color: var(--feed-icon-color);
   font-size: 200%;
 }
 
 .book:hover .feed,
 .book:focus .feed {
-  color: rgb(0, 0, 0);
+  color: var(--feed-icon-color-focus);
 }
 
 .play {
   position: absolute;
   bottom: 20px;
   left: 20px;
-  color: rgba(0, 0, 0, 0.4);
+  color: var(--feed-icon-color);
 }
 
 .play .fa-play {
@@ -57,7 +65,7 @@ body {
 
 .book:hover .play,
 .book.focus .play {
-  color: rgb(0, 0, 0);
+  color: var(--feed-icon-color-focus);
 }
 
 .duration {
@@ -65,16 +73,42 @@ body {
   right: 20px;
   position: absolute;
   font-weight: bold;
-  color: rgb(255, 255, 255);
+  color: var(--feed-icon-text-color);
   font-size: 120%;
   padding: 4px 6px;
   border-radius: 8px;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: var(--feed-icon-color);
 }
 
 .book:hover .duration,
 .book:focus .duration {
-  background-color: #000;
+  background-color: var(--feed-icon-color-focus);
+}
+
+.separator {
+  position: relative;
+  margin: auto;
+  text-align: center;
+  max-width: 40rem;
+  color: var(--editable-border-color);
+  padding-top: 1rem;
+  font-size: x-large;
+  padding-bottom: 1rem;
+}
+
+.separator span {
+  background: white;
+  position: relative;
+  padding: 0 .5rem;
+}
+
+.separator::before {
+  position: absolute;
+  content: '';
+  top: 1.75rem;
+  left: 0;
+  width: 100%;
+  border-top: solid 1px var(--editable-border-color);
 }
 
 .footer {
@@ -96,12 +130,18 @@ body {
 }
 
 .catalog.solo {
-  gap: 2rem;
+  max-width: 80rem;
+  margin: auto;
 }
 
 /* On mobile devices, reduce space between .book and .summary to 10px and add 1rem whitespace left/right.  */
 .summary {
-  margin: -50px 1rem auto 1rem;
+  margin-top: -50px;
+}
+
+.summary h4, 
+.summary ul {
+  margin-left: 2rem;
 }
 
 .search {
@@ -121,6 +161,7 @@ body {
 
 [contenteditable] {
   position: relative;
+  border-radius: 0.3rem;
 }
 
 [contenteditable]::before {
@@ -129,8 +170,8 @@ body {
 }
 
 [contenteditable='false']:hover::before {
-  background-color: rgb(244, 244, 244);
-  border-color: rgb(224, 224, 224);
+  background-color: var(--editable-background-color);
+  border-color: var(--editable-border-color);
   position: absolute;
   top: -0.25rem;
   left: 0;
@@ -145,24 +186,19 @@ body {
   content: '\f044';
   font-family: 'FontAwesome';
   font-size: 60%;
-  color: rgb(224, 224, 224);
+  color: var(--editable-border-color);
   top: 0.15rem;
   right: 0;
 }
 
 .description {
-  padding: 1rem 0 1rem 0;
-}
-
-.description[contenteditable='false']:hover::before {
-  width: calc(100% + 1.5rem);
-  left: -1rem;
+  padding: 1rem 2rem;
 }
 
 .description[contenteditable='false']:hover::after {
   font-size: larger;
-  top: 0.5rem;
-  right: 0;
+  top: 0.3rem;
+  right: 0.3rem;
 }
 
 @media (min-width: 720px) {
@@ -174,20 +210,7 @@ body {
     padding: 0.5rem 2rem;
   }
 
-  .description[contenteditable='false']:hover::before {
-    width: 100%;
-  }
-
-  .description[contenteditable='false']:hover::after {
-    right: 1.5rem;
-  }
-
   .summary {
     margin-top: 0;
-    margin-right: 1rem;
-  }
-
-  .description {
-    padding: 1rem 2rem 1rem 0;
   }
 }
