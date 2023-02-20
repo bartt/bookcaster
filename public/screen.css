@@ -189,7 +189,8 @@ body {
   border-radius: 0.3rem;
 }
 
-[contenteditable='false']:hover::before {
+[contenteditable='false']:hover::before,
+[contenteditable].modified::before {
   background-color: var(--editable-background-color);
   border-color: var(--editable-border-color);
   position: absolute;
@@ -201,14 +202,22 @@ body {
   z-index: -1;
 }
 
-[contenteditable='false']:hover::after {
+[contenteditable='false']:hover::after,
+[contenteditable].modified::after {
   position: absolute;
-  content: '\f044';
   font-family: 'FontAwesome';
   font-size: 60%;
   color: var(--editable-border-color);
   top: 0.15rem;
   right: 0;
+}
+
+[contenteditable='false']:hover::after {
+  content: '\f044'; /* Edit icon */
+}
+
+[contenteditable].modified::after {
+  content: '\f0ee'; /* Cloud upload icon */
 }
 
 .description {

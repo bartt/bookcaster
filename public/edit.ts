@@ -53,15 +53,16 @@ class Edit {
             if (!field) {
               return;
             }
+            // Bring up saving notification.
+            item.classList.add('modified');
             const value = item.innerHTML;
-            // Bring up saving notification
-            // alert(`SAVE ${bookId}: ${oldSha1}/${newSha1}: ${field} = ${value}`);
             // Save the changes to the DB.
             const response = await Api.update(`book/${bookId}`, {
               field,
               value,
             });
             // Hide saving alert when done and update the editable field with the saved value.
+            item.classList.remove('modified');
             item.innerHTML = response[field];
           }
         });
