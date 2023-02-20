@@ -85,6 +85,14 @@ body {
   background-color: var(--feed-icon-color-focus);
 }
 
+.summary .fa-stack {
+  color: var(--feed-icon-color);
+}
+
+.summary a:hover .fa-stack {
+  color: var(--feed-icon-color-focus);
+}
+
 .separator {
   position: relative;
   margin: auto;
@@ -115,6 +123,15 @@ body {
   gap: 1rem;
 }
 
+.footer a {
+  color: var(--feed-icon-color);
+}
+
+.footer a:hover,
+.footer a:focus {
+  color: var(--feed-icon-color-focus);
+}
+
 .authors li,
 .categories li {
   list-style: none;
@@ -139,8 +156,7 @@ body {
   margin-top: -50px;
 }
 
-.summary h4, 
-.summary ul {
+.summary h4 {
   margin-left: 2rem;
 }
 
