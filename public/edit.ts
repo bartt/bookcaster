@@ -67,6 +67,13 @@ class Edit {
           }
         });
     });
+
+    window.addEventListener('beforeunload', (e) => {
+      if (document.querySelectorAll('[contenteditable=true]').length > 0) {
+        return (e.returnValue =
+          'There are unsaved changes. Are you sure you want to leave?');
+      }
+    });
   }
 }
 
