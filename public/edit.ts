@@ -1,7 +1,7 @@
 import { digestMessage } from './crypto.js';
 import { Api } from './api.js';
 
-class Edit {
+class Editable {
   static handleClick() {
     document.addEventListener('click', async (e) => {
       // Clicking an editable element makes it editable and places the cursor
@@ -77,4 +77,30 @@ class Edit {
   }
 }
 
-export { Edit };
+class Listable {
+  static handleClick() {
+    document.addEventListener('click', (e) => {
+      const item = e.target as HTMLElement;
+      const type = item.closest('.authors, .categories')?.className || '';
+      if (item.classList.contains('listable')) {
+        alert(`Clicked ${item.classList} as ${type}`);
+        // List all available authors/categories, i.e. type
+        // Don't pre-load the lists as the list change when entries are added/removed?
+        // Add None/Unknown option to remove the current entry
+
+        // Select matching entry in list if available
+
+        // How to add an entry? Allow multiple selections from the list?
+
+        // How to add a new entry to list of authors/categories?
+        // Include an element below the list of options to create a new entry.
+        // Follow Wave Apps' Add Vendor exmaple.
+
+        // Automatically remove the entry permanently when it isn't being referenced any more?
+
+      }
+    });
+  }
+}
+
+export { Editable, Listable };
