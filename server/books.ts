@@ -4,7 +4,7 @@ import {
   BookFeedRequestGeneric,
   FileRequestGeneric,
 } from '../interfaces/index.js';
-import { Book } from '../models/index.js';
+import { Author, Book, Category } from '../models/index.js';
 import { s3Client, s3BaseConfig } from './s3-client.js';
 
 const books: FastifyPluginAsync = async (
@@ -20,11 +20,25 @@ const books: FastifyPluginAsync = async (
       if (!book) {
         return `Could not find ${request.params.bookName}!`;
       }
+      const authors = await Author.query().orderBy('name');
+      const bookAuthorIds = book.authors?.map((author) => author.id);
+      const selectedAuthors = authors.map((author) => {
+        const selected = bookAuthorIds?.includes(author.id);
+        return { ...author, selected };
+      });
+      const categories = await Category.query().orderBy('name');
+      const bookCategoryIds = book.categories?.map((category) => category.id);
+      const selectedCategories = categories.map((category) => {
+        const selected = bookCategoryIds?.includes(category.id);
+        return { ...category, selected };
+      });
       switch (ext) {
         case '':
           return reply.view('views/book', {
             book: {
               ...book,
+              authors: selectedAuthors,
+              categories: selectedCategories,
               duration: book.duration(),
               url: book.toUrl(request.protocol, request.hostname),
             },

@@ -9,22 +9,16 @@
   </div>
   
   <h4>Written/performed by:</h4>
-  <ul class="authors">
+  <select class="authors" multiple placeholder="Add/remove authors..." autocomplete="off">
     {{#each authors}}
-      <li>{{> author}}</li>
+      <option value="{{id}}" {{#if selected}}selected{{/if}}>{{> author}}</option>
     {{/each}}
-    {{#unless authors}}
-       <li>{{> stack icon="user"}}Unknown author</li>
-    {{/unless}}
-  </ul>
+  </select>
 
   <h4>Filed under:</h4>
-  <ul class="categories">
+  <select class="categories" multiple placeholder="Add/remove categories..." autocomplete="off">
     {{#each categories}}
-      <li>{{> category}}</li>
+      <option value="{{id}}" {{#if selected}}selected{{/if}}>{{> category}}</option>
     {{/each}}
-    {{#unless categories}}
-       <li>{{> stack icon="folder"}}None</li>
-    {{/unless}}
-  </ul>
+  </select>
 </div>

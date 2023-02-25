@@ -5,6 +5,14 @@
 </ul>
 <script type="module">
   import { Edit } from '/edit.js';
+  import TomSelect from 'https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.2.2/esm/tom-select.complete.min.js';
 
   Edit.handleClick()
+  
+  document.querySelectorAll('.authors, .categories').forEach((element) => {
+    new TomSelect(element, {
+      plugins: ['dropdown_input', 'no_backspace_delete', 'remove_button'],
+      create: true,
+    })
+  })
 </script>

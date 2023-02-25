@@ -132,16 +132,6 @@ body {
   color: var(--feed-icon-color-focus);
 }
 
-.authors li,
-.categories li {
-  list-style: none;
-}
-
-.authors .fa-stack,
-.categories .fa-stack {
-  margin-right: 0.5rem;
-}
-
 .header h1 {
   text-align: center;
 }
@@ -158,6 +148,24 @@ body {
 
 .summary h4 {
   margin-left: 2rem;
+}
+
+.authors + .ts-wrapper,
+.categories + .ts-wrapper {
+  margin: auto 2rem;
+}
+
+.plugin-dropdown_input .dropdown-input {
+  width: calc(100% - 1.5rem);
+}
+
+.ts-control {
+  border-color: transparent;
+}
+
+.ts-control[aria-expanded=false]:hover {
+  border-color: var(--editable-border-color);
+  background-color: var(--editable-background-color);
 }
 
 .search {
@@ -202,6 +210,7 @@ body {
   z-index: -1;
 }
 
+.ts-control[aria-expanded=false]:hover::after,
 [contenteditable='false']:hover::after,
 [contenteditable].modified::after {
   position: absolute;
@@ -212,6 +221,7 @@ body {
   right: 0;
 }
 
+.ts-control[aria-expanded=false]:hover::after,
 [contenteditable='false']:hover::after {
   content: '\f044'; /* Edit icon */
 }
@@ -227,6 +237,11 @@ body {
 .description[contenteditable='false']:hover::after {
   font-size: larger;
   top: 0.3rem;
+  right: 0.3rem;
+}
+
+.ts-control[aria-expanded=false]:hover::after {
+  font-size: larger;
   right: 0.3rem;
 }
 
