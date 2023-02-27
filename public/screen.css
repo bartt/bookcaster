@@ -132,37 +132,6 @@ body {
   color: var(--feed-icon-color-focus);
 }
 
-.authors li,
-.categories li {
-  list-style: none;
-  position: relative;
-  border-radius: 0.3rem;
-  border: solid 2px transparent;
-  max-width: 24em;
-}
-
-.authors li:hover,
-.categories li:hover {
-  background-color: var(--editable-background-color);
-  border-color: var(--editable-border-color);
-}
-
-.authors li:hover::after,
-.categories li:hover::after {
-  position: absolute;
-  font-family: 'FontAwesome';
-  font-size: larger;
-  color: var(--editable-border-color);
-  top: 0.15rem;
-  right: 0;
-  content: '\f044'; /* Edit icon */
-}
-
-.authors .fa-stack,
-.categories .fa-stack {
-  margin-right: 0.5rem;
-}
-
 .header h1 {
   text-align: center;
 }
