@@ -41,3 +41,36 @@ export interface ApiBookRequestGeneric extends RequestGenericInterface {
     value: string;
   };
 }
+
+export interface ApiBookUpdateAuthorRequestGeneric
+  extends RequestGenericInterface {
+  Params: {
+    bookId: number;
+  };
+  Body: {
+    authorId: number;
+  };
+}
+
+export interface ApiBookUpdateCategoryRequestGeneric
+  extends RequestGenericInterface {
+  Params: {
+    bookId: number;
+  };
+  Body: {
+    categoryId: number;
+  };
+}
+
+export interface ApiAuthorsNewRequestGeneric extends RequestGenericInterface {
+  Body: {
+    name: string;
+  };
+}
+
+export interface ApiCategoriesNewRequestGeneric
+  extends RequestGenericInterface {
+  Body: {
+    name: string;
+  };
+}

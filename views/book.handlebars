@@ -5,15 +5,50 @@
 </ul>
 <script type="module">
   import { Editable, Listable } from '/edit.js';
+  import { Api } from '/api.js';
   import TomSelect from 'https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.2.2/esm/tom-select.complete.min.js';
 
   Editable.handleClick()
   Listable.handleClick()
-  
-  document.querySelectorAll('.authors, .categories').forEach((element) => {
-    new TomSelect(element, {
-      plugins: ['dropdown_input', 'no_backspace_delete', 'remove_button'],
-      create: true,
+
+  const stopClickPropagation = (element) => element.addEventListener('click', (e) => e.stopPropagation())
+  const selects = [{ plural: 'authors', singular: 'author', icon: 'user' }, { plural: 'categories', singular: 'category', icon: 'folder' }]
+  const bookId = document.querySelector('.book').getAttribute('id').split('-').pop()
+  for (const select of selects) {
+    document.querySelectorAll(`.${select.plural}`).forEach((element) => {
+      new TomSelect(element, {
+        plugins: ['dropdown_input', 'no_backspace_delete', 'remove_button'],
+        create: true,
+        render: {
+          item: (item, escape) => `<div><a href="/${select.singular}/${item.text.trim()}">{{> stack icon="${select.icon}"}}${item.text}</a><div>`
+        },
+        onItemAdd: async (value, item) => {
+          stopClickPropagation(item.querySelector('a'));
+          // Save to DB
+          const data = {}
+          data[`${select.singular}Id`] = value
+          await Api.update(`book/${bookId}/${select.singular}`, data);
+        },
+        onItemRemove: async (value) => {
+          // Save to DB
+          const data = {}
+          data[`${select.singular}Id`] = value
+          await Api.delete(`book/${bookId}/${select.singular}`, data)
+          // Sever side check to see if this was the last usage and remove the option altogether.
+          // Update the list of options.
+        },
+        onOptionAdd: async (value, data) => {
+          // Save to DB
+          const newOption = await Api.update(select.plural, {name: value});
+          const payload = {}
+          payload[`${select.singular}Id`] = newOption.id
+          await Api.update(`book/${bookId}/${select.singular}`, payload);
+          // Update the list of options to get the value of the new option.
+        }
+      })
     })
-  })
+  }
+
+  document.querySelectorAll('.item a').forEach(stopClickPropagation);
+  document.querySelector('body').classList.remove('hidden');
 </script>

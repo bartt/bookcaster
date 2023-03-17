@@ -33,7 +33,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.2.2/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <link href="/screen.css" rel="stylesheet" >
   </head>
-  <body>
+  <body {{#if hidden}}class="hidden"{{/if}}>
     {{> header}}
     {{{body}}}
     {{> footer}}

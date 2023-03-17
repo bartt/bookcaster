@@ -44,6 +44,7 @@ const books: FastifyPluginAsync = async (
             },
             title: `${book.title}`,
             editable: 'false',
+            hidden: true,
           });
 
         case 'm3u':

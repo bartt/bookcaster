@@ -1,8 +1,15 @@
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import { decode } from 'html-entities';
-import { ApiBookRequestGeneric } from '../interfaces/index.js';
-import { Book } from '../models/index.js';
+import {
+  ApiBookRequestGeneric,
+  ApiAuthorsNewRequestGeneric,
+  ApiBookUpdateAuthorRequestGeneric,
+  ApiCategoriesNewRequestGeneric,
+  ApiBookUpdateCategoryRequestGeneric,
+} from '../interfaces/index.js';
+import { Author, Book, Category } from '../models/index.js';
 import { join } from 'node:path';
+import { request } from 'node:http';
 
 const api: FastifyPluginAsync = async (
   server: FastifyInstance
@@ -44,6 +51,100 @@ const api: FastifyPluginAsync = async (
       model[field] = value;
       const book = await Book.query().patchAndFetchById(bookId, model);
       return model;
+    }
+  );
+
+  server.post<ApiBookUpdateAuthorRequestGeneric>(
+    '/book/:bookId/author',
+    async (request, reply) => {
+      const bookId = request.params.bookId;
+      const authorId = request.body.authorId;
+      const book = await Book.query().findById(bookId);
+      const author = await Author.query().findById(authorId);
+      if (author) {
+        await book?.$relatedQuery('authors').relate(author);
+        return { bookId, authorId };
+      }
+      return reply.code(400);
+    }
+  );
+
+  server.delete<ApiBookUpdateAuthorRequestGeneric>(
+    '/book/:bookId/author',
+    async (request, reply) => {
+      const bookId = request.params.bookId;
+      const authorId = request.body.authorId;
+      const book = await Book.query().findById(bookId);
+      await book
+        ?.$relatedQuery('authors')
+        .unrelate()
+        .where('authorId', authorId);
+      const books = await Book.query()
+        .joinRelated('authors', { alias: 'a' })
+        .where('a.id', authorId);
+      if (books.length == 0) {
+        await Author.query().deleteById(authorId);
+        return { bookId };
+      }
+      return { bookId, authorId };
+    }
+  );
+
+  server.post<ApiAuthorsNewRequestGeneric>(
+    '/authors',
+    async (request, reply) => {
+      const name = request.body.name;
+      const author = await Author.query().insertAndFetch({
+        name: name,
+      });
+      return author;
+    }
+  );
+
+  server.post<ApiBookUpdateCategoryRequestGeneric>(
+    '/book/:bookId/category',
+    async (request, reply) => {
+      const bookId = request.params.bookId;
+      const categoryId = request.body.categoryId;
+      const book = await Book.query().findById(bookId);
+      const category = await Category.query().findById(categoryId);
+      if (category) {
+        await book?.$relatedQuery('categories').relate(category);
+        return { bookId, categoryId };
+      }
+      reply.code(400);
+    }
+  );
+
+  server.delete<ApiBookUpdateCategoryRequestGeneric>(
+    '/book/:bookId/category',
+    async (request, reply) => {
+      const bookId = request.params.bookId;
+      const categoryId = request.body.categoryId;
+      const book = await Book.query().findById(bookId);
+      await book
+        ?.$relatedQuery('categories')
+        .unrelate()
+        .where('categoryId', categoryId);
+      const books = await Book.query()
+        .joinRelated('categories', { alias: 'c' })
+        .where('c.id', categoryId);
+      if (books.length == 0) {
+        await Category.query().deleteById(categoryId);
+        return { bookId };
+      }
+      return { bookId, categoryId };
+    }
+  );
+
+  server.post<ApiCategoriesNewRequestGeneric>(
+    '/categories',
+    async (request, reply) => {
+      const name = request.body.name;
+      const category = await Category.query().insertAndFetch({
+        name: name,
+      });
+      return category;
     }
   );
 };

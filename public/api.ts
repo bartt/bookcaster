@@ -16,6 +16,17 @@ class Api {
     }).then(parseResponse);
   }
 
+  static delete(path: string, data: object): Promise<object> {
+    return fetch(`/api/v1/${path}`, {
+      headers: {
+        ...Api.headers,
+        'Content-Type': 'application/json',
+      },
+      method: 'DELETE',
+      body: JSON.stringify(data),
+    }).then(parseResponse);
+  }
+
   private static headers = {
     Authorization: 'Basic Ym9vazpyZWFkZXI=',
   };
