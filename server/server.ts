@@ -151,7 +151,10 @@ handlebars.registerHelper('round', (durationSec: number): number =>
 handlebars.registerHelper(
   'join',
   (authors: Array<Author>, separator = ', '): string =>
-    authors.map((author) => author.name).join(separator)
+    authors
+      .filter((author) => author.selected != false)
+      .map((author) => author.name)
+      .join(separator)
 );
 
 handlebars.registerHelper('blankGuard', (value: string, guard: string) =>
