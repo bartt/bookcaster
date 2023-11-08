@@ -38,6 +38,7 @@ const server: FastifyInstance = fastify({
         authors: 'views/partials/authors.handlebars',
         author: 'views/partials/author.handlebars',
         category: 'views/partials/category.handlebars',
+        cluster: 'views/partials/cluster.handlebars',
         stack: 'views/partials/stack.handlebars',
         book: 'views/partials/book.handlebars',
         search: 'views/partials/search.handlebars',
@@ -89,19 +90,19 @@ const server: FastifyInstance = fastify({
     },
     propertyName: 'm3u',
   })
-  .register(fastifyBasicAuth, {
-    validate: async function (username, password, request, reply) {
-      if (
-        username !== process.env.AUDIO_BOOKS_USER ||
-        password !== process.env.AUDIO_BOOKS_PASSWORD
-      ) {
-        return new Error('No books for you!');
-      }
-    },
-    authenticate: {
-      realm: 'Protected Books',
-    },
-  })
+  // .register(fastifyBasicAuth, {
+  //   validate: async function (username, password, request, reply) {
+  //     if (
+  //       username !== process.env.AUDIO_BOOKS_USER ||
+  //       password !== process.env.AUDIO_BOOKS_PASSWORD
+  //     ) {
+  //       return new Error('No books for you!');
+  //     }
+  //   },
+  //   authenticate: {
+  //     realm: 'Protected Books',
+  //   },
+  // })
   .register(statics, {
     root: staticRoot,
   })
@@ -115,7 +116,7 @@ const server: FastifyInstance = fastify({
   });
 
 server.after(() => {
-  server.addHook('onRequest', server.basicAuth);
+  // server.addHook('onRequest', server.basicAuth);
 });
 
 // Declare the new `@fastify/view` functions

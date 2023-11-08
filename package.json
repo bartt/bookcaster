@@ -7,7 +7,7 @@
   "scripts": {
     "dev:tsc": "tsc --project tsconfig.json --watch --outdir dist",
     "dev:watch:public": "nodemon --exec 'bash -c \"cp -v public/*.{css,js,png} dist/public\"' --watch public --ext css,js,png",
-    "dev:watch:dist": "nodemon --loader esm dist/main.js",
+    "dev:watch:dist": "nodemon --loader esm dist/main.js -- ",
     "dev:prettier": "prettier --config .prettierrc './**/*.ts'",
     "dev:prettier:format": "prettier --config .prettierrc './**/*.ts' --write",
     "dev:lint": "eslint . --fix-dry-run",
@@ -28,6 +28,7 @@
     "@fastify/basic-auth": "^5.0.0",
     "@fastify/static": "^6.8.0",
     "@fastify/view": "^7.4.1",
+    "commander": "^11.1.0",
     "dotenv": "^16.0.3",
     "esm": "^3.2.25",
     "fastify": "^4.12.0",

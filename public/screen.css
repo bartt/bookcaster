@@ -4,6 +4,7 @@
   --feed-icon-color: rgba(0, 0, 0, 0.4);
   --feed-icon-text-color: rgb(255, 255, 255);
   --feed-icon-color-focus: rgb(0, 0, 0);
+  --cover-shadow: rgb(153, 153, 153);
 }
 
 body {
@@ -37,6 +38,14 @@ body {
 .cover {
   max-width: 240px;
   max-height: 360px;
+  box-shadow: 1px 1px 10px var(--cover-shadow);
+}
+
+.cover.small {
+  width: 60px;
+  height: 90px; 
+  margin-right: 12px;
+  margin-bottom: 36px;
 }
 
 .feed {
