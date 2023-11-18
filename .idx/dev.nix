@@ -2,6 +2,7 @@
   # Use https://search.nixos.org/packages?channel=unstable to  find packages
   packages = [
     pkgs.nodejs_18
+    pkgs.google-cloud-sdk
   ];
 
   # sets environment variables in the workspace
