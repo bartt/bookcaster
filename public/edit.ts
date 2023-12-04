@@ -63,6 +63,7 @@ class Editable {
             });
             // Hide saving alert when done and update the editable field with the saved value.
             item.classList.remove('modified');
+            // @ts-ignore
             item.innerHTML = response[field];
           }
         });

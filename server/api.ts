@@ -48,6 +48,7 @@ const api: FastifyPluginAsync = async (
         .replace(/<br>$/, '')
         .replace(/(?:\s)\s+/, '');
       const model = {};
+      // @ts-ignore
       model[field] = value;
       const book = await Book.query().patchAndFetchById(bookId, model);
       return model;

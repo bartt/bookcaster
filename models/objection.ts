@@ -1,5 +1,6 @@
 import Knex from 'knex';
 import Objection from 'objection';
+// @ts-ignore
 const { Model, ModelObject } = Objection;
 import { URL } from 'url';
 import config from './knex-config.js';

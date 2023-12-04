@@ -5,6 +5,7 @@
   "type": "module",
   "main": "dist/main.js",
   "scripts": {
+    "build": "tsc --project tsconfig.json --outdir dist && cp -v public/*.{css,js,png} dist/public",
     "dev:tsc": "tsc --project tsconfig.json --watch --outdir dist",
     "dev:watch:public": "nodemon --exec 'bash -c \"cp -v public/*.{css,js,png} dist/public\"' --watch public --ext css,js,png",
     "dev:watch:dist": "nodemon --loader esm dist/main.js -- ",

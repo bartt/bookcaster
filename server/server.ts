@@ -153,6 +153,7 @@ handlebars.registerHelper(
   'join',
   (authors: Array<Author>, separator = ', '): string =>
     authors
+      // @ts-ignore
       .filter((author) => author.selected != false)
       .map((author) => author.name)
       .join(separator)
