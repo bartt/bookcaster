@@ -90,19 +90,19 @@ const server: FastifyInstance = fastify({
     },
     propertyName: 'm3u',
   })
-  // .register(fastifyBasicAuth, {
-  //   validate: async function (username, password, request, reply) {
-  //     if (
-  //       username !== process.env.AUDIO_BOOKS_USER ||
-  //       password !== process.env.AUDIO_BOOKS_PASSWORD
-  //     ) {
-  //       return new Error('No books for you!');
-  //     }
-  //   },
-  //   authenticate: {
-  //     realm: 'Protected Books',
-  //   },
-  // })
+  .register(fastifyBasicAuth, {
+    validate: async function (username, password, request, reply) {
+      if (
+        username !== process.env.AUDIO_BOOKS_USER ||
+        password !== process.env.AUDIO_BOOKS_PASSWORD
+      ) {
+        return new Error('No books for you!');
+      }
+    },
+    authenticate: {
+      realm: 'Protected Books',
+    },
+  })
   .register(statics, {
     root: staticRoot,
   })
