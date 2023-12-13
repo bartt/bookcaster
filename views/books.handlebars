@@ -10,13 +10,18 @@
   import { Search } from '/search.js';
   new Search(corpus).listen().loadQueryParam();
   document.querySelector('.catalog').classList.remove('hidden');
+  
+  // Locate the previously clicked book after loading.
+  if (location.hash.startsWith('#')) {
+    document.querySelector(location.hash).scrollIntoView();
+  }
 
   // Remember the current location when clicking through a book's details.
   document.addEventListener('click', (ev) => {
     if (ev.target.tagName == "IMG") {
       const grandparentNode = ev.target.parentNode && ev.target.parentNode.parentNode;
       if (grandparentNode.classList.contains("book")) {
-        window.location.hash = `#${grandparentNode.id}`;
+        history.pushState({}, "", `${location.origin}${location.pathname}${location.search}#${grandparentNode.id}`);
       }
     } 
   });
