@@ -10,5 +10,15 @@
   import { Search } from '/search.js';
   new Search(corpus).listen().loadQueryParam();
   document.querySelector('.catalog').classList.remove('hidden');
+
+  // Remember the current location when clicking through a book's details.
+  document.addEventListener('click', (ev) => {
+    if (ev.target.tagName == "IMG") {
+      const grandparentNode = ev.target.parentNode && ev.target.parentNode.parentNode;
+      if (grandparentNode.classList.contains("book")) {
+        window.location.hash = `#${grandparentNode.id}`;
+      }
+    } 
+  });
 </script>
 {{/if}}

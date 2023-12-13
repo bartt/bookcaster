@@ -84,7 +84,8 @@ class Listable {
       const item = e.target as HTMLElement;
       const type = item.closest('.authors, .categories')?.className || '';
       if (item.classList.contains('listable')) {
-        alert(`Clicked ${item.classList} as ${type}`);      }
+        alert(`Clicked ${item.classList} as ${type}`);
+      }
     });
   }
 }
