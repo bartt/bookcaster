@@ -116,7 +116,7 @@ const server: FastifyInstance = fastify({
   });
 
 server.after(() => {
-  // server.addHook('onRequest', server.basicAuth);
+  server.addHook('onRequest', server.basicAuth);
 });
 
 // Declare the new `@fastify/view` functions
