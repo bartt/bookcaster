@@ -3,6 +3,7 @@
   packages = [
     pkgs.nodejs_18
     pkgs.google-cloud-sdk
+    pkgs.sqlite.bin
   ];
 
   # sets environment variables in the workspace
