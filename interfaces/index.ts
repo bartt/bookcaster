@@ -26,6 +26,12 @@ export interface FileRequestGeneric extends RequestGenericInterface {
   };
 }
 
+export interface LastRequestGeneric extends RequestGenericInterface {
+  Params: {
+    bookCount: number;
+  };
+}
+
 export interface SyncRequestGeneric extends RequestGenericInterface {
   Querystring: {
     addOnly: boolean;

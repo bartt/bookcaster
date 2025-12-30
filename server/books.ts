@@ -1,11 +1,18 @@
 import { GetObjectCommand, GetObjectCommandOutput } from '@aws-sdk/client-s3';
-import { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import {
+  FastifyInstance,
+  FastifyPluginAsync,
+  FastifyReply,
+  FastifyRequest,
+} from 'fastify';
 import {
   BookFeedRequestGeneric,
   FileRequestGeneric,
+  LastRequestGeneric,
 } from '../interfaces/index.js';
 import { Author, Book, Category } from '../models/index.js';
 import { s3Client, s3BaseConfig } from './s3-client.js';
+import { request } from 'node:http';
 
 const books: FastifyPluginAsync = async (
   server: FastifyInstance
@@ -146,29 +153,53 @@ const books: FastifyPluginAsync = async (
     const books = await Book.query().withGraphFetched(
       '[files, authors, categories]'
     );
-    return reply.view('views/books', {
-      books: books.map((book) => {
-        return {
-          ...book,
-          duration: book.duration(),
-          url: book.toUrl(request.protocol, request.hostname),
-        };
-      }),
-      by: 'books',
-      corpus: JSON.stringify(
-        books.map((book) => {
-          return {
-            id: book.id,
-            title: book.title,
-            description: book.description,
-            authors: book.authors,
-            categories: book.categories,
-          };
-        })
-      ),
-      title: 'Audiobooks as Podcasts',
-    });
+    return renderBooks(request, reply, books);
+  });
+
+  server.get('/latest', async (request, reply) => {
+    const books = await Book.query()
+      .orderBy('id', 'desc')
+      .limit(20)
+      .withGraphFetched('[files, authors, categories]');
+    return renderBooks(request, reply, books);
+  });
+
+  server.get<LastRequestGeneric>('/last:bookCount', async (request, reply) => {
+    const books = await Book.query()
+      .orderBy('id', 'desc')
+      .limit(request.params.bookCount)
+      .withGraphFetched('[files, authors, categories]');
+    return renderBooks(request, reply, books);
   });
 };
+
+function renderBooks(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  books: Book[]
+) {
+  return reply.view('views/books', {
+    books: books.map((book) => {
+      return {
+        ...book,
+        duration: book.duration(),
+        url: book.toUrl(request.protocol, request.hostname),
+      };
+    }),
+    by: 'books',
+    corpus: JSON.stringify(
+      books.map((book) => {
+        return {
+          id: book.id,
+          title: book.title,
+          description: book.description,
+          authors: book.authors,
+          categories: book.categories,
+        };
+      })
+    ),
+    title: 'Audiobooks as Podcasts',
+  });
+}
 
 export { books };
