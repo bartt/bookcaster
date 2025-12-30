@@ -325,6 +325,7 @@ const admin: FastifyPluginAsync = async (
               const imageSize = sizeOf(imageBuffer);
               if (
                 book.image &&
+                book.image.size == obj.Size &&
                 (book.image.height == imageSize.height ||
                   book.image.width == imageSize.width)
               ) {
