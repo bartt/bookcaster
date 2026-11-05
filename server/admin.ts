@@ -14,7 +14,7 @@ import { Author, Book, Category, MediaFile } from '../models/index.js';
 import { SyncRequestGeneric } from '../interfaces/index.js';
 
 // Maximum size to get all embeded media tags from a MP3/M4A media file.
-const mediaTagMaxSize = 666 * 1024;
+const mediaTagMaxSize = 8 * 1024 * 1024;
 
 // Minimum description length to extract from media files.
 const minimumDescriptionLenth = 120;
@@ -169,6 +169,8 @@ const admin: FastifyPluginAsync = async (
               );
               const metadata = await parseBuffer(fileBuffer, mimeType)
                 .then(async (metadata) => {
+                  // reply.raw.write(`obj: ${JSON.stringify(obj)}\n`);
+                  // reply.raw.write(`Metadata up to ${maxBytes} bytes: ${JSON.stringify(metadata)}\n`);
                   // Must read the entire file to determine the duration when format reports `numberOfSamples`.
                   if (
                     metadata.format.numberOfSamples &&
@@ -186,10 +188,11 @@ const admin: FastifyPluginAsync = async (
                       (await remainderResponse.Body?.transformToByteArray()) ||
                         []
                     );
-                    return await parseBuffer(
+                    metadata = await parseBuffer(
                       Buffer.concat([fileBuffer, remainderBuffer]),
                       mimeType
                     );
+                    // reply.raw.write(`Metadata after reading the complete file: ${JSON.stringify(metadata)}\n`);
                   }
                   return metadata;
                 })
@@ -207,23 +210,21 @@ const admin: FastifyPluginAsync = async (
                 .for(book.id)
                 .where('name', 'like', fileName)
                 .first();
+
+              const fileData = {
+                name: fileName,
+                size: obj.Size as number,
+                duration: metadata?.format.duration || 0,
+                date: fileResponse.LastModified || new Date(),
+              };
+              // reply.raw.write(`New file data: ${JSON.stringify(fileData)}\n`);
               if (file) {
-                await file.$query().update({
-                  name: fileName,
-                  size: obj.Size as number,
-                  duration: metadata?.format.duration || 0,
-                  date: fileResponse.LastModified || new Date(),
-                });
+                await file.$query().update(fileData);
                 reply.raw.write(`Updated ${fileName}.\n`);
               } else {
                 await Book.relatedQuery('files')
                   .for(book.id)
-                  .insert({
-                    name: fileName,
-                    size: obj.Size as number,
-                    duration: metadata?.format.duration || 0,
-                    date: fileResponse.LastModified || new Date(),
-                  });
+                  .insert(fileData);
                 reply.raw.write(`Inserted ${fileName}.\n`);
               }
 
