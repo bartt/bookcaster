@@ -31,6 +31,8 @@ body {
   list-style: none;
   position: relative;
   width: 240px;
+  min-width: 240px;
+  height: 360px;
   margin: 10px 10px 60px 10px;
   text-align: center;
 }

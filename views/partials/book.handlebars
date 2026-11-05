@@ -2,9 +2,11 @@
   {{#unless solo }}
   <a href="/{{name}}" title="{{title}} by {{> authors}}">
   {{/unless}}
+    <img class="cover" 
     {{#with image}}
-    <img class="cover" src="{{dataUri}}" width="{{width}}" height="{{height}}" alt="{{title}} cover"/>
+    src="{{dataUri}}" width="{{width}}" height="{{height}}"
     {{/with}}
+    alt="{{title}} cover"/>
     <a class="feed" title="Listen to {{title}} by {{> authors}} as a podcast" href="{{toItpc url}}.rss">
       {{>stack icon="rss"}}
     </a>
